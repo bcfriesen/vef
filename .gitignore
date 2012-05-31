@@ -1,2 +1,5 @@
 a.out
 *.mod
+run
+*.o
+*.swp
