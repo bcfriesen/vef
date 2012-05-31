@@ -82,7 +82,7 @@ program main
   use global
   implicit none
 
-  integer :: i1, i2
+  integer :: i1, i2, i3
 
   ! The optical depth grid will be logarithmic, such that tau_i = tau_(i-1) * f, 
   ! where f is this constant, to be calculated below.
@@ -100,7 +100,7 @@ program main
 
   ! Set up direction cosine grid.
   do i1 = 1, n_mu_pts
-    mu_grid( i1 ) = -1.0 + real( i1 - 1 ) * ( 2.0 / real( n_mu_pts ) )
+    mu_grid( i1 ) = -1.0 + real( i1 ) * ( 2.0 / real( n_mu_pts ) )
   end do
 
   ! Set up wavelength grid.
@@ -114,6 +114,11 @@ program main
     do i2 = 1, n_wl_pts
       source_fn( i1, i2 ) = planck_fn( wl_grid( i2 ), temp )
     end do
+  end do
+  call solve_rte
+
+  do i1 = 1, n_depth_pts
+    write( *, * ) tau_grid( i1 ), i_lambda( i1, 1, 1 )
   end do
 
   ! Eddington approximation works well as a first guess for the VEFs.
@@ -227,7 +232,7 @@ subroutine solve_scatt_prob
   real, dimension( n_depth_pts, n_depth_pts ) :: matrix
   real, dimension( n_depth_pts ) :: rhs
   ! pivot indices; LAPACK needs these
-  real, dimension( n_depth_pts ) :: ipiv
+  integer, dimension( n_depth_pts ) :: ipiv
   ! LAPACK driver info flag
   integer :: info
 
@@ -260,7 +265,7 @@ subroutine solve_scatt_prob
     end do
 
     ! Solve for mean intensity.
-    call sgesv( n_depth_pts, 1, matrix, n_depth_pts, ipiv, rhs, 1, &
+    call sgesv( n_depth_pts, 1, matrix, n_depth_pts, ipiv, rhs, &
     n_depth_pts, info)
 
   end do
@@ -278,33 +283,40 @@ subroutine solve_rte
   
   real, dimension( n_depth_pts, n_depth_pts ) :: matrix
   real, dimension( n_depth_pts ) :: rhs
+  integer, dimension( n_depth_pts ) :: ipiv
 
   integer :: i1, i2, i3
+  integer :: info
 
   ! create first-order derivative stencil
   do i1 = 1, n_wl_pts
     do i2 = 1, n_mu_pts
+      write( *, * ) 'solving RTE for wl = ', wl_grid( i1 ), &
+      'and mu = ', mu_grid( i2 )
       do i3 = 2, n_depth_pts - 1
         matrix( i3, i3 - 1 ) = -1.0 / ( 2.0 * dtau( i3 - 1 ) )
-        matrix( i3, i3 ) = ( ( dtau( i3 ) - dtau( -i3 - 1 ) ) / &
-        ( 2.0 * dtau( i3 ) * dtau( i3 - 1 ) ) ) - 1.0
+        matrix( i3, i3 ) = ( ( dtau( i3 ) - dtau( i3 - 1 ) ) / &
+        ( 2.0 * dtau( i3 ) * dtau( i3 - 1 ) ) ) - ( 1.0 / mu_grid( i2 ) )
         matrix( i3, i3 + 1 ) = 1.0 / ( 2.0 * dtau( i3 ) )
-        rhs( i3 ) = -source_fn( i3, i1 )
+        rhs( i3 ) = -source_fn( i3, i1 ) / mu_grid( i2 )
       end do
       ! The boundary conditions for the RTE depend on the direction cosine of
       ! the ray.
       if ( mu_grid( i2 ) > 0.0 ) then
         matrix( 1, 1 ) = -( 1.0 / dtau( 1 ) ) - 1.0
         matrix( 1, 2 ) = 1.0 / dtau ( 1 )
-        rhs( 1 ) = -source_fn( 1, i1 )
+        rhs( 1 ) = -source_fn( 1, i1 ) / mu_grid( i2 )
         rhs( n_depth_pts ) = planck_fn( wl_grid( i1 ), temp )
       else
         matrix( n_depth_pts, n_depth_pts - 1 ) = - 1.0 / dtau( n_depth_pts - 1 )
         matrix( n_depth_pts, n_depth_pts ) = &
         ( 1.0 / dtau( n_depth_pts - 1 ) ) - 1.0
         rhs( 1 ) = 0.0
-        rhs( n_depth_pts ) = -source_fn( n_depth_pts, i1 )
+        rhs( n_depth_pts ) = -source_fn( n_depth_pts, i1 ) / mu_grid( i2 )
       end if
+      call sgesv( n_depth_pts, 1, matrix, n_depth_pts, ipiv, rhs, &
+                  n_depth_pts, info)
+      i_lambda( :, i2, i1 ) = rhs( : )
     end do
   end do
 
