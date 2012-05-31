@@ -38,7 +38,7 @@ module global
   ! # of optical depth points
   integer, parameter :: n_depth_pts = 100
   ! # of direction cosine points
-  integer, parameter :: n_mu_pts = 10
+  integer, parameter :: n_mu_pts = 11
   ! # of wavelength points
   integer, parameter :: n_wl_pts = 1
 
@@ -117,8 +117,14 @@ program main
   end do
   call solve_rte
 
-  do i1 = 1, n_depth_pts
-    write( *, * ) tau_grid( i1 ), i_lambda( i1, 1, 1 )
+  do i1 = 1, n_wl_pts
+    write( *, * ) 'lambda = ', wl_grid( i1 )
+    do i2 = 1, n_mu_pts
+      write( *, * ) 'mu = ', mu_grid( i2 )
+      do i3 = 1, n_depth_pts
+        write( *, * ) tau_grid( i3 ), i_lambda( i3, i2, i1 )
+      end do
+    end do
   end do
 
   ! Eddington approximation works well as a first guess for the VEFs.
@@ -303,19 +309,24 @@ subroutine solve_rte
       ! The boundary conditions for the RTE depend on the direction cosine of
       ! the ray.
       if ( mu_grid( i2 ) > 0.0 ) then
-        matrix( 1, 1 ) = -( 1.0 / dtau( 1 ) ) - 1.0
+        matrix( 1, 1 ) = -( 1.0 / dtau( 1 ) ) - ( 1.0 / mu_grid( i2 ) )
         matrix( 1, 2 ) = 1.0 / dtau ( 1 )
+        matrix( n_depth_pts, n_depth_pts ) = 1.0
         rhs( 1 ) = -source_fn( 1, i1 ) / mu_grid( i2 )
         rhs( n_depth_pts ) = planck_fn( wl_grid( i1 ), temp )
       else
+        ! In principle this number can be anything because this BC is just
+        ! I_-(tau = 0) = 0, which is the same as 5.0 * I_-(tau = 0) = 0.
+        matrix( 1, 1 ) = 1.0
         matrix( n_depth_pts, n_depth_pts - 1 ) = - 1.0 / dtau( n_depth_pts - 1 )
         matrix( n_depth_pts, n_depth_pts ) = &
-        ( 1.0 / dtau( n_depth_pts - 1 ) ) - 1.0
+        ( 1.0 / dtau( n_depth_pts - 1 ) ) - ( 1.0 / mu_grid( i2 ) )
         rhs( 1 ) = 0.0
         rhs( n_depth_pts ) = -source_fn( n_depth_pts, i1 ) / mu_grid( i2 )
       end if
       call sgesv( n_depth_pts, 1, matrix, n_depth_pts, ipiv, rhs, &
                   n_depth_pts, info)
+      write( *, * ) 'INFO = ', info
       i_lambda( :, i2, i1 ) = rhs( : )
     end do
   end do
