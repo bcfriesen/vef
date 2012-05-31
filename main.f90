@@ -115,21 +115,21 @@ program main
       source_fn( i1, i2 ) = planck_fn( wl_grid( i2 ), temp )
     end do
   end do
-  call solve_rte
-
-  do i1 = 1, n_wl_pts
-    write( *, * ) 'lambda = ', wl_grid( i1 )
-    do i2 = 1, n_mu_pts
-      write( *, * ) 'mu = ', mu_grid( i2 )
-      do i3 = 1, n_depth_pts
-        write( *, * ) tau_grid( i3 ), i_lambda( i3, i2, i1 )
-      end do
-    end do
-  end do
 
   ! Eddington approximation works well as a first guess for the VEFs.
   vef_f_k( :, : ) = 1.0 / 3.0
   vef_f_h( :, : ) = 1.0 / sqrt( 3.0 )
+
+  ! solve scattering problem
+  call solve_scatt_prob
+
+  do i1 = 1, n_wl_pts
+    !write( *, * ) 'lambda = ', wl_grid( i1 )
+      do i2 = 1, n_depth_pts
+        write( *, * ) tau_grid( i2 ), j_lambda( i2, i1 )
+      end do
+  end do
+
 
   stop
 end program main
@@ -248,7 +248,7 @@ subroutine solve_scatt_prob
 
     ! boundary conditions at surface
     matrix( 1, 1 ) = ( -vef_f_k( 1, i1 ) / dtau( 1 ) ) - vef_f_h( 1, i1 )
-    matrix( 1, 2 ) =  vef_f_k( 2, i1 ) / dtau( 1 )
+    matrix( 1, 2 ) = vef_f_k( 2, i1 ) / dtau( 1 )
     ! No external illumination means this term is zero.
     rhs( 1 ) = 0.0
 
@@ -261,18 +261,20 @@ subroutine solve_scatt_prob
     rhs ( n_depth_pts ) = planck_fn( wl_grid( i1 ), temp ) / 2.0
 
     do i2 = 2, n_depth_pts - 1
-      matrix( i2, i2 - 1 ) = vef_f_k( i2 - 1, i1 ) / ( dtau( i2 - 1 ) * &
-      dtau_tilde( i2 ) )
-      matrix( i2, i2 ) = ( vef_f_k( i2, i1 ) / ( dtau( i2 - 1 ) * &
-      dtau( i2 ) ) ) - 1.0
-      matrix( i2, i2 + 1 ) = vef_f_k( i2 + 1, i1 ) / ( dtau( i2 ) * &
-      dtau_tilde( i2 ) )
+      matrix( i2, i2 - 1 ) = ( 2.0 / ( dtau( i2 - 1 ) * ( dtau( i2 - 1 ) + &
+      dtau( i2 ) ) ) ) * vef_f_k( i2 - 1, i1 )
+      matrix( i2, i2 ) = ( -( 2.0 / ( dtau( i2 - 1 ) * &
+      dtau( i2 ) ) ) * vef_f_k( i2, i1 ) ) - 1.0
+      matrix( i2, i2 + 1 ) = ( 2.0 / ( dtau( i2 ) * ( dtau( i2 - 1 ) + &
+      dtau( i2 ) ) ) ) * vef_f_k( i2 + 1, i1 )
       rhs( i2 ) = -source_fn( i2, i1 )
     end do
 
     ! Solve for mean intensity.
     call sgesv( n_depth_pts, 1, matrix, n_depth_pts, ipiv, rhs, &
     n_depth_pts, info)
+
+    j_lambda( :, i1 ) = rhs( : )
 
   end do
 
