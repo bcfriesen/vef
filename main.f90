@@ -1,81 +1,7 @@
 ! A code for solving the radiative transfer equation in a plane-parallel
-! atmosphere using variable Eddington factors (see article "Difference
+! atmosphere using variable Eddington factors. See article "Difference
 ! Equations and Linearization Methods" by Lawrence Auer
 ! in "Methods in Radiative Transfer" ed. Wolfgang Kalkofen (1984).
-
-module interfaces
-  interface
-
-  function dtau( d )
-    implicit none
-
-    real :: dtau
-    integer :: d
-  end function dtau
-
-  function dtau_tilde( d )
-    implicit none
-
-    real :: dtau_tilde
-    integer :: d
-  end function dtau_tilde
-
-  function planck_fn( lambda, temp )
-    implicit none
-
-    real :: planck_fn
-    real :: lambda, temp
-  end function planck_fn
-  
-  end interface
-
-end module interfaces
-
-
-
-module global
-
-  ! # of optical depth points
-  integer, parameter :: n_depth_pts = 100
-  ! # of direction cosine points
-  integer, parameter :: n_mu_pts = 11
-  ! # of wavelength points
-  integer, parameter :: n_wl_pts = 1
-
-  ! maximum optical depth to consider
-  real, parameter :: tau_max = 1.0e+4
-  ! minimum non-zero optical depth to consider
-  real, parameter :: tau_min = 1.0e-8
-
-  ! Thermalization parameter for source function in isotropic, monochromatic
-  ! scattering (Milne-Eddington problem). eps = 1 means pure LTE; eps = 0 means
-  ! pure scattering (like SYNOW).
-  real, parameter :: me_therm_parm = 1.0e-4
-  ! optical depth grid
-  real, dimension( n_depth_pts ) :: tau_grid
-  ! direction cosine grid
-  real, dimension( n_mu_pts ) :: mu_grid
-  ! wavelength grid
-  real, dimension( n_wl_pts ) :: wl_grid
-  ! Eddington factor f_K = K / J
-  real, dimension( n_depth_pts, n_wl_pts ) :: vef_f_k
-  ! Eddington factor f_H = \int_0^1 j(\mu) \mu d\mu / J
-  real, dimension( 2, n_wl_pts ) :: vef_f_h
-  ! source function
-  real, dimension( n_depth_pts, n_wl_pts ) :: source_fn
-  ! mean intensity
-  real, dimension( n_depth_pts, n_wl_pts ) :: j_lambda
-  ! specific intensity
-  real, dimension( n_depth_pts, n_mu_pts, n_wl_pts ) :: i_lambda
-
-  ! blackbody temperature at depth
-  ! TODO: add temperature dependence later
-  real, parameter :: temp = 1.0e4
-
-end module global
-
-
-
 
 program main
   use interfaces
@@ -83,8 +9,11 @@ program main
   implicit none
 
   integer :: i1, i2, i3
+  integer, parameter :: n_int_pts = 20
+  real, dimension( n_int_pts ) :: int_pts, int_wghts
 
-  ! The optical depth grid will be logarithmic, such that tau_i = tau_(i-1) * f, 
+  ! The optical depth grid will be logarithmic, such that
+  ! tau_i = tau_(i-1) * f, 
   ! where f is this constant, to be calculated below.
   real :: tau_grid_ratio
 
@@ -109,26 +38,88 @@ program main
     wl_grid( i1 ) = 5000.0
   end do
 
-  ! LTE loop first
+  ! Set up boundary conditions.
+  i_lambda( :, :, : ) = 0.0
+  do i1 = 1, n_wl_pts
+    do i2 = 1, n_mu_pts
+      ! At the surface, only downward rays have a boundary condition.
+      if ( mu_grid ( i2 ) < 0.0 ) then
+        i_lambda( 1, i2, i1 ) = 0.0
+      ! At depth, only upward rays have a boundary condition.
+      else
+        i_lambda( n_depth_pts, i2, i1 ) = planck_fn( wl_grid( i1 ), temp )
+      end if
+    end do
+  end do
+
+!----------------------START LTE RUN TO GET FIRST GUESS FOR J-------------------
   do i1 = 1, n_depth_pts
     do i2 = 1, n_wl_pts
       source_fn( i1, i2 ) = planck_fn( wl_grid( i2 ), temp )
     end do
   end do
 
+  call formal_soln
+
+  !do i1 = 1, n_wl_pts
+  !  do i2 = 1, n_depth_pts
+  !    write( *, * ) tau_grid( i2 ), i_lambda( i2, 1, i1 )
+  !  end do
+  !end do
+
+  ! In LTE we don't need J to find I since we can write down the formal solution
+  ! immediately. However we need a not-completely-terrible guess for J (i.e.,
+  ! better than J = B) when we start solving the scattering equation in NLTE. So
+  ! we calculate J here according to its definition.
+  j_lambda( :, : ) = 0.0
+  do i1 = 1, n_wl_pts
+    do i2 = 1, n_depth_pts
+      call gauleg( minval( mu_grid( : ) ), maxval( mu_grid( : ) ), int_pts, &
+                   int_wghts, n_int_pts )
+      do i3 = 1, n_int_pts
+        j_lambda( i2, i1 ) = j_lambda( i2, i1 ) &
+        + interp_i( i2, int_pts(i3), i1 ) * int_wghts( i3 )
+      end do
+      j_lambda( i2, i1 ) = ( 1.0 / 2.0 ) * j_lambda( i2, i1 )
+    end do
+  end do
+
+  do i1 = 1, n_depth_pts
+    write( *, * ) tau_grid( i1 ), j_lambda( i1, 1 )
+  end do
+!--------------------------------END LTE RUN------------------------------------
+
+
+
+!-------------------------------START NLTE RUN ---------------------------------
   ! Eddington approximation works well as a first guess for the VEFs.
   vef_f_k( :, : ) = 1.0 / 3.0
   vef_f_h( :, : ) = 1.0 / sqrt( 3.0 )
 
-  ! solve scattering problem
+  vef_f_k_old( :, : ) = vef_f_k
+  vef_f_h_old( :, : ) = vef_f_h
+
+  ! use LTE value of J to calculate first guess at NLTE source function
+  call calc_source_fn
+
+  ! solve scattering problem to find J
   call solve_scatt_prob
 
-  do i1 = 1, n_wl_pts
-    !write( *, * ) 'lambda = ', wl_grid( i1 )
-      do i2 = 1, n_depth_pts
-        write( *, * ) tau_grid( i2 ), j_lambda( i2, i1 )
-      end do
+  do i3 = 1, 2
+    ! calculate NLTE source function, given J (if this the first iteration in
+    ! the NLTE loop then J will be J_LTE)
+    call calc_source_fn
+
+    !do i1 = 1, n_wl_pts
+    !  do i2 = 1, n_depth_pts
+    !    write( *, * ) tau_grid( i2 ), j_lambda( i2, i1 )
+    !  end do
+    !end do
+
+    call solve_scatt_prob
+
   end do
+!-------------------------------END NLTE RUN------------------------------------
 
 
   stop
@@ -157,6 +148,19 @@ function dtau( d )
   end if
 
 end function dtau
+
+
+function dtau_mu( depth_idx, mu_idx )
+  use global
+  use interfaces, only: dtau
+  implicit none
+
+  real :: dtau_mu
+  integer :: depth_idx, mu_idx
+
+  dtau_mu = dtau( depth_idx ) / abs( mu_grid( mu_idx ) )
+
+end function dtau_mu
 
 
 
@@ -257,7 +261,8 @@ subroutine solve_scatt_prob
     dtau( n_depth_pts - 1 )
     matrix( n_depth_pts, n_depth_pts ) = ( vef_f_k( n_depth_pts, i1 ) / &
     dtau( n_depth_pts - 1 ) ) + vef_f_h( 2, i1 )
-    ! Blackbody at depth. Factor of 1/2 comes from integration of I_+ to get H_+.
+    ! Blackbody at depth. Factor of 1/2 comes from integration of I_+ to get
+    ! H_+.
     rhs ( n_depth_pts ) = planck_fn( wl_grid( i1 ), temp ) / 2.0
 
     do i2 = 2, n_depth_pts - 1
@@ -279,3 +284,128 @@ subroutine solve_scatt_prob
   end do
 
 end subroutine solve_scatt_prob
+
+
+subroutine formal_soln
+  use global
+  use interfaces, only: dtau_mu
+  implicit none
+
+  real, dimension( 2 : n_depth_pts, n_mu_pts ) :: e0i, e1i, e2i
+
+  real, dimension( 2 : n_depth_pts, n_mu_pts ) :: ami, bmi, gmi
+  real, dimension( 2 : n_depth_pts, n_mu_pts, n_wl_pts ) :: delta_i_m
+
+  real, dimension( 1 : n_depth_pts - 1, n_mu_pts) :: api, bpi, gpi
+  real, dimension( 1 : n_depth_pts - 1, n_mu_pts, n_wl_pts ) :: delta_i_p
+
+  integer :: i1, i2, i3
+
+  ! Once S is known everywhere, we use the formal solution to the RTE to
+  ! calculate I everywhere.
+
+  do i1 = 2, n_depth_pts
+    do i2 = 1, n_mu_pts
+      e0i( i1, i2 ) = 1.0 - exp( -dtau_mu( i1 - 1, i2 ) )
+      e1i( i1, i2 ) = dtau_mu( i1 - 1, i2 ) - e0i( i1, i2 )
+      e2i( i1, i2 ) = dtau_mu( i1 - 1, i2 )**2.0 - 2.0 * e1i( i1, i2 )
+    end do
+  end do
+
+  ! These are parabolic interpolation coefficients. See Olson & Kunasz (1987),
+  ! Eqs. 17 - 21.
+! do i1 = 2, n_depth_pts - 1
+!   do i2 = 1, n_mu_pts
+!     ami( i1, i2 ) = e0i( i1, i2 ) + ( e2i( i1, i2 ) &
+!                         - ( dtau_mu( i1, i2 ) &
+!                         + 2.0 * dtau_mu( i1 - 1, i2 ) &
+!                         * e1i( i1, i2 ) ) ) &
+!                         / ( dtau_mu( i1 - 1, i2 ) * ( dtau_mu( i1, i2 ) &
+!                         + dtau_mu( i1 - 1, i2 ) ) )
+!     bmi( i1, i2 ) = ( ( dtau_mu( i1, i2 ) + dtau_mu( i1 - 1, i2 ) ) &
+!                         * e1i( i1, i2 ) - e2i( i1, i2 ) ) &
+!                         / ( dtau_mu( i1 - 1, i2 ) * dtau_mu( i1, i2 ) )
+!     gmi( i1, i2 ) = ( e2i( i1, i2 ) - dtau_mu( i1 - 1, i2 ) &
+!                         * e1i( i1, i2 ) ) / ( dtau_mu( i1, i2 ) &
+!                         * ( dtau_mu( i1, i2 ) + dtau_mu( i1 - 1, i2 ) ) )
+!     api( i1, i2 ) = ( e2i( i1 + 1, i2 ) - dtau_mu( i1, i2 ) &
+!                         * e1i( i1 + 1, i2 ) ) &
+!                         / ( dtau_mu( i1 - 1, i2 ) &
+!                         * ( dtau_mu( i1, i2 ) +  dtau_mu( i1 - 1, i2 ) ) )
+!     bpi( i1, i2 ) = ( ( dtau_mu( i1, i2 ) + dtau_mu( i1 - 1, i2 ) ) &
+!                         * e1i( i1 + 1, i2 ) - e2i( i1 + 1, i2 ) ) &
+!                         / ( dtau_mu( i1 - 1, i2 ) * dtau_mu( i1, i2 ) )
+!     gpi( i1, i2 ) = e0i( i1 + 1, i2 ) + ( e2i( i1 + 1, i2 ) &
+!                         - ( dtau_mu( i1 - 1, i2 ) &
+!                         + 2.0 * dtau_mu( i1, i2 ) ) &
+!                         * e1i( i1 + 1, i2 ) ) / ( dtau_mu( i1, i2 ) &
+!                         * ( dtau_mu( i1, i2 ) + dtau_mu( i1 - 1, i2 ) ) )
+!   end do
+! end do
+
+! These are linear interpolation coefficients.
+  do i2 = 1, n_mu_pts
+    do i1 = 2, n_depth_pts
+      ami( i1, i2 ) = e0i( i1, i2 ) - e1i( i1, i2 ) / dtau_mu( i1 - 1, i2 )
+      bmi( i1, i2 ) = e1i( i1, i2 ) / dtau_mu( i1 - 1, i2 )
+      gmi( i1, i2 ) = 0.0
+    end do
+    do i1 = 1, n_depth_pts - 1
+      api( i1, i2 ) = 0.0
+      bpi( i1, i2 ) = e1i( i1 + 1, i2 ) / dtau_mu( i1, i2 )
+      gpi( i1, i2 ) = e0i( i1 + 1, i2 ) - e1i( i1 + 1, i2 ) / dtau_mu( i1, i2 )
+    end do
+  end do
+
+  do i1 = 1, n_wl_pts
+    do i2 = 1, n_mu_pts
+      if ( mu_grid( i2 ) > 0.0 ) then
+        do i3 = 1, n_depth_pts - 1
+          delta_i_p( i3, i2, i1 ) = api( i3, i2 ) * source_fn( i3 - 1, i1 ) &
+                                  + bpi( i3, i2 ) * source_fn( i3    , i1 ) &
+                                  + gpi( i3, i2 ) * source_fn( i3 + 1, i1 )
+        end do
+      else
+        do i3 = 2, n_depth_pts
+        delta_i_m( i3, i2, i1 ) = ami( i3, i2 ) * source_fn( i3 - 1, i1 ) &
+                                + bmi( i3, i2 ) * source_fn( i3    , i1 ) &
+                                + gmi( i3, i2 ) * source_fn( i3 + 1, i1 )
+        end do
+      end if
+    end do
+  end do
+
+  ! Interpolate to calculate I everywhere.
+  do i1 = 1, n_wl_pts
+    do i2 = 1, n_mu_pts
+      if ( mu_grid( i2 ) < 0.0 ) then
+        do i3 = 2, n_depth_pts
+          i_lambda( i3, i2, i1 ) = i_lambda( i3 - 1, i2, i1 ) &
+                                   * exp( -dtau_mu( i3 - 1, i2 ) ) &
+                                   + delta_i_m( i3, i2, i1 )
+        end do
+      else
+        do i3 = n_depth_pts - 1, 1, -1
+          i_lambda( i3, i2, i1 ) = i_lambda( i3 + 1, i2, i1 ) &
+                                   * exp( -dtau_mu( i3, i2 ) ) &
+                                   + delta_i_p( i3, i2, i1 )
+        end do
+      end if
+    end do
+  end do
+
+end subroutine formal_soln
+
+
+! Interpolate I in mu-space so we can integrate to find J.
+function interp_i( depth_idx, mu, wl_idx )
+  use global
+  use interfaces, only: twerp
+  implicit none
+  real :: interp_i
+  real :: mu
+  integer :: depth_idx, wl_idx
+
+  call twerp( mu_grid( : ), i_lambda( depth_idx, : , wl_idx ), &
+              mu, interp_i, n_mu_pts )
+end function interp_i

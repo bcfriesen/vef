@@ -1,10 +1,16 @@
 FC = gfortran
-FCFLAGS = -c -g -O0
+FCFLAGS = -c -g -O0 -fdefault-real-8
 LD = $(FC)
 LDFLAGS = -g -O0
 LAPACK = -L/home/friesen/lapack-3.4.1/build/lib -llapack -lblas
 
 SOURCES = \
+	interfaces.f90 \
+	global.f90 \
+	twerp.f90 \
+	locate.f90 \
+	stop_exit.f90 \
+	gauleg.f90 \
 	main.f90
 OBJECTS = $(SOURCES:.f90=.o)
 EXECUTABLE = run
