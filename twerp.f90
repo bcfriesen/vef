@@ -8,11 +8,11 @@
 !***********************************************************************
       implicit none                                                     
       integer npts                                                      
-      real*8 :: x,y                                                     
-      real*8 :: x0,y0                                                   
+      real :: x,y                                                     
+      real :: x0,y0                                                   
       dimension x0(*),y0(*)                                             
       integer idx                                                       
-      real*8 power,slope,xrat,xratx,yrat,slope1                         
+      real power,slope,xrat,xratx,yrat
       logical :: dolog                                                  
 !***********************************************************************
 !*****does a two point log interpolation if there is no sign change**** 
@@ -24,7 +24,6 @@
        print *,x0(1:npts),npts,x,idx                                    
        call stop_exit(1,'error in interp')                              
       endif                                                             
-      slope1 = (y0(npts) - y0(1))/(x0(npts)-x0(1)+1.d-70)               
       slope  = (y0(idx+1)-y0(idx)) / (x0(idx+1)-x0(idx)+1.d-70)         
       dolog = ( x0(idx)*x0(idx+1) .gt. 0.d0 .and. &
          y0(idx)*y0(idx+1) .gt. 0.d0 )                                  

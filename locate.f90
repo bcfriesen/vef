@@ -3,8 +3,8 @@
 !
       subroutine locate(xarray,n,x,j)
 !     -------------------------------
-      integer j,n
-      real*8 x,xarray(n)
+      integer :: j,n
+      real :: x,xarray(n)
 !***************************************************************
 ! search in an ordered table.
 ! adapted from numerical recipes

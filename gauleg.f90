@@ -1,21 +1,22 @@
       subroutine gauleg(x1,x2,x,w,n)
       implicit none
       integer, intent(in):: n
-      real*8, intent(in):: x1,x2
-      real*8, intent(out):: x(:),w(:)
+      real, intent(in):: x1,x2
+      real, intent(out):: x(:),w(:)
       integer M
       integer I
       integer J
-      real*8  XM
-      real*8  EPS
-      real*8  XL
-      real*8  Z
-      real*8  P1
-      real*8  P2
-      real*8  P3
-      real*8  PP
-      real*8  Z1
+      real  XM
+      real  EPS
+      real  XL
+      real  Z
+      real  P1
+      real  P2
+      real  P3
+      real  PP
+      real  Z1
       parameter (eps=3.d-14)
+
       m=(n+1)/2
       xm=0.5d0*(x2+x1)
       xl=0.5d0*(x2-x1)

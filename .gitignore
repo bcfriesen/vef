@@ -3,3 +3,4 @@ a.out
 run
 *.o
 *.swp
+fort.*

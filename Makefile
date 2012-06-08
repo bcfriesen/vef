@@ -1,8 +1,14 @@
-FC = gfortran
-FCFLAGS = -c -g -O0 -fdefault-real-8
+FC = nagfor
+FCFLAGS = -C=all -g -O0 -r8 -c
+LAPACK = -llapack -lblas
+LDFLAGS = -C=all -g -O0 -r8
+
+#FC = ifort
+#FCFLAGS = -warn all -g -O0 -r8 -c
+#LAPACK = -mkl
+#LDFLAGS = -warn all -g -O0 -r8
+
 LD = $(FC)
-LDFLAGS = -g -O0
-LAPACK = -L/home/friesen/lapack-3.4.1/build/lib -llapack -lblas
 
 SOURCES = \
 	interfaces.f90 \
@@ -11,6 +17,13 @@ SOURCES = \
 	locate.f90 \
 	stop_exit.f90 \
 	gauleg.f90 \
+	planck_fn.f90 \
+	formal_soln.f90 \
+	calc_moments.f90 \
+	calc_feautrier_vars.f90 \
+	calc_source_fn.f90 \
+	calc_vefs.f90 \
+	solve_scatt_prob.f90 \
 	main.f90
 OBJECTS = $(SOURCES:.f90=.o)
 EXECUTABLE = run
@@ -24,4 +37,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(FC) $(FCFLAGS) $< -o $@
 
 clean:
-	rm -rf $(EXECUTABLE) *.o *.dat *.mod
+	rm -rf $(EXECUTABLE) *.o *.dat *.mod *__genmod* fort.*
