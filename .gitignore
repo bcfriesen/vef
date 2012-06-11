@@ -4,3 +4,5 @@ run
 *.o
 *.swp
 fort.*
+*.g90
+*.dat

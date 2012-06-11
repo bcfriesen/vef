@@ -6,13 +6,14 @@
 !***********************************************************************
       subroutine twerp(x0,y0,x,y,npts)                                  
 !***********************************************************************
+      use precision_mod
       implicit none                                                     
-      integer npts                                                      
-      real :: x,y                                                     
-      real :: x0,y0                                                   
-      dimension x0(*),y0(*)                                             
-      integer idx                                                       
-      real power,slope,xrat,xratx,yrat
+      integer, intent(in) :: npts
+      real(kind=dp), intent(in) :: x
+      real(kind=dp), intent(out) :: y
+      real(kind=dp), dimension(:), intent(in) :: x0,y0
+      integer :: idx
+      real(kind=dp) :: power,slope,xrat,xratx,yrat
       logical :: dolog                                                  
 !***********************************************************************
 !*****does a two point log interpolation if there is no sign change**** 
@@ -31,7 +32,7 @@
        yrat = y0(idx+1)/y0(idx)                                         
        xrat = x0(idx+1)/x0(idx)                                         
        xratx = x/x0(idx)                                                
-         power  = log(yrat) / log(xrat)                                 
+         power  = dlog(yrat) / dlog(xrat)
          y      = y0(idx)*(xratx**power)                                
       else                                                              
          y      = y0(idx) + slope * (x-x0(idx))                         

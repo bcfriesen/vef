@@ -6,12 +6,18 @@ subroutine calc_source_fn
   implicit none
 
   integer :: i1, i2
-  do i1 = 1, n_depth_pts
-    do i2 = 1, n_wl_pts
+
+  do i1 = 1, n_wl_pts
+    do i2 = 1, n_depth_pts
+      if ( j_lambda( i2, i1 ) < 0.0d+0 ) &
+        call stop_exit( 1, 'J < 0' )
       ! Milne-Eddington source function
-      source_fn( i1, i2 ) = me_therm_parm * &
-      planck_fn( wl_grid( n_wl_pts ), temp ) * ( 1.0 - me_therm_parm ) * &
-      j_lambda( i1, i2 )
+      source_fn( i2, i1 ) = &
+      me_therm_parm * planck_fn( wl_grid( i1 ), temp ) + &
+      ( 1.0d+0 - me_therm_parm ) * j_lambda( i2, i1 )
+      
+      if ( source_fn( i2, i1 ) < 0.0d+0 ) &
+        call stop_exit( 1, 'S < 0' )
     end do
   end do
 end subroutine calc_source_fn

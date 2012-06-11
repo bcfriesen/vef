@@ -3,8 +3,10 @@
 !
       subroutine locate(xarray,n,x,j)
 !     -------------------------------
-      integer :: j,n
-      real :: x,xarray(n)
+      use precision_mod
+      integer, intent(in) :: n
+      real(kind=dp), intent(in) :: x, xarray(n)
+      integer, intent(out) :: j
 !***************************************************************
 ! search in an ordered table.
 ! adapted from numerical recipes
@@ -12,7 +14,7 @@
 !            in the line lists (equal wavelengths can happen,
 !            the orginal version would get stuck if this occurs)
 !***************************************************************
-      integer jl,jm,ju
+      integer :: jl,jm,ju
 !
       jl=0
       ju=n+1

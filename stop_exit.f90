@@ -1,7 +1,7 @@
       subroutine stop_exit(status,message)
 !     ------------------------------------
-      integer status
-      character*(*) message
+      integer :: status
+      character(len=*) :: message
 !***********************************************************************
 !  this subroutine is used to print a message to stderr and 
 !  stop the code with a return value, if possible.
@@ -11,7 +11,7 @@
 !  and this vresion is by far not complete ...
 ! exit() is for IBM RS/6000
 !***********************************************************************
-      write(0,'(a)')message
+      write(*,*) 'ERROR: ', message
       stop
       return
       end

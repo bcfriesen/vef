@@ -1,29 +1,32 @@
 FC = nagfor
-FCFLAGS = -C=all -g -O0 -r8 -c
+FCFLAGS = -C=all -g -g90 -O0 -c
 LAPACK = -llapack -lblas
-LDFLAGS = -C=all -g -O0 -r8
+LDFLAGS = -C=all -g -g90 -O0
 
 #FC = ifort
-#FCFLAGS = -warn all -g -O0 -r8 -c
+#FCFLAGS = -warn all -g -O0 -c
 #LAPACK = -mkl
-#LDFLAGS = -warn all -g -O0 -r8
+#LDFLAGS = -warn all -g -O0
 
 LD = $(FC)
 
 SOURCES = \
+	precision_mod.f90 \
 	interfaces.f90 \
 	global.f90 \
+	write_vefs.f90 \
+	write_source_fn.f90 \
+	write_moments.f90 \
 	twerp.f90 \
 	locate.f90 \
 	stop_exit.f90 \
 	gauleg.f90 \
 	planck_fn.f90 \
-	formal_soln.f90 \
 	calc_moments.f90 \
-	calc_feautrier_vars.f90 \
 	calc_source_fn.f90 \
 	calc_vefs.f90 \
 	solve_scatt_prob.f90 \
+	solve_rte.f90 \
 	main.f90
 OBJECTS = $(SOURCES:.f90=.o)
 EXECUTABLE = run
@@ -37,4 +40,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(FC) $(FCFLAGS) $< -o $@
 
 clean:
-	rm -rf $(EXECUTABLE) *.o *.dat *.mod *__genmod* fort.*
+	rm -rf $(EXECUTABLE) *.o *.dat *.mod *__genmod* fort.* *.g90

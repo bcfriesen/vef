@@ -1,5 +1,6 @@
 module global
 
+  use precision_mod
   ! # of optical depth points
   integer, parameter :: n_depth_pts = 100
   ! # of direction cosine points. In the plane-parallel case we make this an
@@ -8,44 +9,48 @@ module global
   ! mu evenly from [-1, +1], we'll hit mu = 0 with an odd number of points. So
   ! we make it even.
   integer, parameter :: n_mu_pts = 50
+  integer, parameter :: n_pos_mu_pts = n_mu_pts / 2
   ! # of wavelength points
   integer, parameter :: n_wl_pts = 1
 
   ! maximum optical depth to consider
-  real, parameter :: tau_max = 1.0e+4
+  real(kind=dp), parameter :: tau_max = 1.0d+4
   ! minimum non-zero optical depth to consider
-  real, parameter :: tau_min = 1.0e-8
+  real(kind=dp), parameter :: tau_min = 1.0d-8
 
   ! Thermalization parameter for source function in isotropic, monochromatic
   ! scattering (Milne-Eddington problem). eps = 1 means pure LTE; eps = 0 means
   ! pure scattering (like SYNOW).
-  real, parameter :: me_therm_parm = 1.0e-4
+  real(kind=dp), parameter :: me_therm_parm = 1.0d-4
   ! optical depth grid
-  real, dimension( n_depth_pts ) :: tau_grid
+  real(kind=dp), dimension( n_depth_pts ) :: tau_grid
   ! direction cosine grid
-  real, dimension( n_mu_pts ) :: mu_grid
+  real(kind=dp), dimension( n_mu_pts ) :: mu_grid
+  ! positive direction cosine grid
+  real(kind=dp), dimension( n_pos_mu_pts ) :: pos_mu_grid
   ! wavelength grid
-  real, dimension( n_wl_pts ) :: wl_grid
+  real(kind=dp), dimension( n_wl_pts ) :: wl_grid
   ! Eddington factor f_K = K / J
-  real, dimension( n_depth_pts, n_wl_pts ) :: vef_f_k
+  real(kind=dp), dimension( n_depth_pts, n_wl_pts ) :: vef_f_k
   ! Eddington factor f_H = \int_0^1 j(\mu) \mu d\mu / J
-  real, dimension( 2, n_wl_pts ) :: vef_f_h
+  real(kind=dp), dimension( 2, n_wl_pts ) :: vef_f_h
   ! VEF values from previous iteration. Need these so we can find out when
   ! they've converged.
-  real, dimension( n_depth_pts, n_wl_pts ) :: vef_f_k_old
-  real, dimension( 2, n_wl_pts ) :: vef_f_h_old
+  real(kind=dp), dimension( n_depth_pts, n_wl_pts ) :: vef_f_k_old
+  real(kind=dp), dimension( 2, n_wl_pts ) :: vef_f_h_old
   ! source function
-  real, dimension( n_depth_pts, n_wl_pts ) :: source_fn
+  real(kind=dp), dimension( n_depth_pts, n_wl_pts ) :: source_fn
   ! first 3 moments of I
-  real, dimension( n_depth_pts, n_wl_pts ) :: j_lambda, h_lambda, k_lambda
+  real(kind=dp), dimension( n_depth_pts, n_wl_pts ) :: j_lambda, h_lambda, k_lambda
   ! specific intensity
-  real, dimension( n_depth_pts, n_mu_pts, n_wl_pts ) :: i_lambda
-  ! Feautrier variables. little_j is symmetric in mu so we're actually storing
-  ! twice as many values as we need, but it makes it easier to deal with in code
-  real, dimension( n_depth_pts, n_mu_pts, n_wl_pts ) :: little_j, little_h
+  real(kind=dp), dimension( n_depth_pts, n_mu_pts, n_wl_pts ) :: i_lambda
+  ! Feautrier variables. These are symmetric (j) and anti-symmetric (h) averages
+  ! of specific intensities, so they only span from 0 < mu < 1, rather than from
+  ! -1 < mu < 1
+  real(kind=dp), dimension( n_depth_pts, n_pos_mu_pts, n_wl_pts ) :: little_j, little_h
 
   ! blackbody temperature at depth
-  ! TODO: add temperature dependence later
-  real, parameter :: temp = 1.0e4
+  ! TODO: add temperature dependence
+  real(kind=dp), parameter :: temp = 1.0d+4
 
 end module global
