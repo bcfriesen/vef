@@ -212,17 +212,3 @@ function dtau_tilde( d )
   end if
 
 end function dtau_tilde
-
-! Interpolate I in mu-space so we can integrate to find J.
-function interp_i( depth_idx, mu, wl_idx )
-  use precision_mod
-  use global
-  use interfaces, only: twerp
-  implicit none
-  real(kind=dp) :: interp_i
-  real(kind=dp) :: mu
-  integer :: depth_idx, wl_idx
-
-  call twerp( mu_grid( : ), i_lambda( depth_idx, : , wl_idx ), &
-              mu, interp_i, n_mu_pts )
-end function interp_i

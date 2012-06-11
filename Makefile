@@ -17,10 +17,7 @@ SOURCES = \
 	write_vefs.f90 \
 	write_source_fn.f90 \
 	write_moments.f90 \
-	twerp.f90 \
-	locate.f90 \
 	stop_exit.f90 \
-	gauleg.f90 \
 	planck_fn.f90 \
 	calc_moments.f90 \
 	calc_source_fn.f90 \
