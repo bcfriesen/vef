@@ -6,3 +6,4 @@ run
 fort.*
 *.g90
 *.dat
+build

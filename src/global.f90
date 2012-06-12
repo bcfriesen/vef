@@ -16,7 +16,7 @@ module global
   ! Thermalization parameter for source function in isotropic, monochromatic
   ! scattering (Milne-Eddington problem). eps = 1 means pure LTE; eps = 0 means
   ! pure scattering (like SYNOW).
-  real(kind=dp), parameter :: me_therm_parm = 1.0d-10
+  real(kind=dp), parameter :: me_therm_parm = 0.0d+0
   ! optical depth grid
   real(kind=dp), dimension( n_depth_pts ) :: tau_grid
   ! direction cosine grid
