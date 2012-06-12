@@ -3,13 +3,8 @@ module global
   use precision_mod
   ! # of optical depth points
   integer, parameter :: n_depth_pts = 100
-  ! # of direction cosine points. In the plane-parallel case we make this an
-  ! even number. The reason is that we want to avoid mu = 0 since mu ends up in
-  ! the denominator in some places of the formal solution, but if we distribute
-  ! mu evenly from [-1, +1], we'll hit mu = 0 with an odd number of points. So
-  ! we make it even.
+  ! # of direction cosine points.
   integer, parameter :: n_mu_pts = 50
-  integer, parameter :: n_pos_mu_pts = n_mu_pts / 2
   ! # of wavelength points
   integer, parameter :: n_wl_pts = 1
 
@@ -21,13 +16,11 @@ module global
   ! Thermalization parameter for source function in isotropic, monochromatic
   ! scattering (Milne-Eddington problem). eps = 1 means pure LTE; eps = 0 means
   ! pure scattering (like SYNOW).
-  real(kind=dp), parameter :: me_therm_parm = 1.0d-4
+  real(kind=dp), parameter :: me_therm_parm = 1.0d-10
   ! optical depth grid
   real(kind=dp), dimension( n_depth_pts ) :: tau_grid
   ! direction cosine grid
   real(kind=dp), dimension( n_mu_pts ) :: mu_grid
-  ! positive direction cosine grid
-  real(kind=dp), dimension( n_pos_mu_pts ) :: pos_mu_grid
   ! wavelength grid
   real(kind=dp), dimension( n_wl_pts ) :: wl_grid
   ! Eddington factor f_K = K / J
@@ -42,12 +35,10 @@ module global
   real(kind=dp), dimension( n_depth_pts, n_wl_pts ) :: source_fn
   ! first 3 moments of I
   real(kind=dp), dimension( n_depth_pts, n_wl_pts ) :: j_lambda, h_lambda, k_lambda
-  ! specific intensity
-  real(kind=dp), dimension( n_depth_pts, n_mu_pts, n_wl_pts ) :: i_lambda
   ! Feautrier variables. These are symmetric (j) and anti-symmetric (h) averages
   ! of specific intensities, so they only span from 0 < mu < 1, rather than from
   ! -1 < mu < 1
-  real(kind=dp), dimension( n_depth_pts, n_pos_mu_pts, n_wl_pts ) :: little_j, little_h
+  real(kind=dp), dimension( n_depth_pts, n_mu_pts, n_wl_pts ) :: little_j, little_h
 
   ! blackbody temperature at depth
   ! TODO: add temperature dependence

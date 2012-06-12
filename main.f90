@@ -39,13 +39,8 @@ program main
   end do
 
   ! Set up direction cosine grid. These should be evenly spaced.
-  i2 = 0
   do i1 = 1, n_mu_pts
-    mu_grid( i1 ) = -1.0d+0 + dble( i1 - 1 ) * ( 2.0d+0 / dble( n_mu_pts - 1 ) )
-    if ( mu_grid( i1 ) > 0.0d+0 ) then
-      i2 = i2 + 1
-      pos_mu_grid( i2 ) = mu_grid( i1 )
-    end if
+    mu_grid( i1 ) = dble( i1 ) * ( 1.0d+0 / dble( n_mu_pts ) )
   end do
 
   ! Set up wavelength grid.
@@ -103,39 +98,32 @@ program main
   call write_vefs
 
   ! keep previous results so we can test for convergence
-  vef_f_k_old( :, : ) = vef_f_k
-  vef_f_h_old( :, : ) = vef_f_h
+  vef_f_k_old( :, : ) = vef_f_k( :, : )
+  vef_f_h_old( :, : ) = vef_f_h( :, : )
 
   ! iterate this loop until VEFs converge
   do i3 = 1, 20
 
-    write( *, * )
-    write( *, * ) 'NLTE ITERATION #: ', i3
+    write( *, '(a20, 2x, i3)') 'NLTE ITERATION #: ', i3
 
     ! calculate NLTE source function, given J (if this the first iteration in
     ! the NLTE loop then J will be J_LTE)
-    write( *, * )
-    write( *, * ) 'calculating NLTE source function...'
     call calc_source_fn
     call write_source_fn
 
-    write( *, * )
-    write( *, * ) 'solving scattering problem...'
     call solve_scatt_prob
 
-    write( *, * )
-    write( *, * ) 'solving RTE...'
     call solve_rte
 
-    write( *, * )
-    write( *, * ) 'calculating moments...'
     call calc_moments
     call write_moments
 
-    write( *, * )
-    write( *, * ) 'calculating new VEFs...'
     call calc_vefs
     call write_vefs
+    write(*, '(a20, 1x, es9.3e2)') 'VEF RMS change: ', &
+    calc_rmsd( vef_f_k( :, 1 ), vef_f_k_old( :, 1 ) )
+    vef_f_k_old( :, : ) = vef_f_k( :, : )
+    vef_f_h_old( :, : ) = vef_f_h( :, : )
 
   end do
 !-------------------------------END NLTE RUN------------------------------------

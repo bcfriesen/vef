@@ -13,6 +13,7 @@ LD = $(FC)
 SOURCES = \
 	precision_mod.f90 \
 	interfaces.f90 \
+	calc_rmsd.f90 \
 	global.f90 \
 	write_vefs.f90 \
 	write_source_fn.f90 \

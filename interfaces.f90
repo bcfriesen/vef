@@ -34,10 +34,19 @@ module interfaces
   end function planck_fn
 
 
-  subroutine stop_exit(status,message)
-    integer :: status
-    character(len=*) :: message
+  subroutine stop_exit(stat, who, message)
+    implicit none
+    integer :: stat
+    character(len=*) :: who, message
   end subroutine stop_exit
+
+
+  Function calc_rmsd(array1, array2)
+    Use precision_mod
+    Implicit None
+    Real :: calc_rmsd
+    Real (Kind=dp), Dimension (:) :: array1, array2
+  End Function calc_rmsd
 
 
   end interface
