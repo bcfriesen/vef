@@ -120,6 +120,9 @@ program main
     ! use S to calculate little_j (Feautrier variable)
     call solve_rte
 
+    ! use little_j to calculate flux
+    call calc_flux
+
     ! use little_j to calculate 2nd moment K
     call calc_2nd_moment_k
     call write_moments

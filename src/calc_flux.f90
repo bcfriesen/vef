@@ -5,6 +5,8 @@ subroutine calc_flux
 
   integer :: i1, i2, i3
 
+  h_lambda( :, : ) = 0.0d+0
+
   do i1 = 1, n_wl_pts
     do i2 = 1, n_mu_pts
       ! one-sided, 1st order derivative at surface
@@ -22,6 +24,18 @@ subroutine calc_flux
                                       little_j( n_depth_pts - 1, i2, i1 ) ) / &
                                       dtau_mu( n_depth_pts - 1, i2 )
     end do
+
+    ! calculate H, the 1st moment of I
+    do i2 = 1, n_depth_pts
+      do i3 = 1, n_mu_pts - 1
+        ! Romberg integration
+        h_lambda( i2, i1 ) = h_lambda( i2, i1 ) + &
+        0.5d+0 * ( little_h( i2, i3, i1 ) * mu_grid( i3 ) + &
+        little_h( i2, i3 + 1, i1 ) * mu_grid( i3 + 1 ) ) * &
+        ( mu_grid( i3 + 1 ) - mu_grid( i3 ) )
+      end do
+    end do
+
   end do
 
 end subroutine calc_flux

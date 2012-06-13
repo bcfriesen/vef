@@ -1,0 +1,19 @@
+This code solves the radiative transfer equation using variable
+Eddington factors. The methods are described in the article:
+
+Auer, L. H. "Difference equations and linearization methods for
+radiative transfer." Ed. Wolfgang Kalkofen. "Methods in Radiative
+Transfer".  Cambridge: Cambridge UP, 1984. 237-79.
+
+I use the CMake build system, mostly because I hate writing
+makefiles. Here is how to compile the code:
+
+cd vef
+mkdir build
+cd build
+cmake ..
+make
+
+To run the code, just type
+
+./vef
