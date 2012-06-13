@@ -8,16 +8,16 @@ enable_language(Fortran)
 # uncomment next line to force IBM's compiler
 #set (CMAKE_Fortran_COMPILER "xlf")
 # uncomment next line to force GNU's compiler
-#set (CMAKE_Fortran_COMPILER "gfortran")
+set (CMAKE_Fortran_COMPILER "gfortran")
 # uncomment next line to force NAG's compiler
-set (CMAKE_Fortran_COMPILER "nagfor")
+#set (CMAKE_Fortran_COMPILER "nagfor")
 
 get_filename_component(Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
 if (Fortran_COMPILER_NAME STREQUAL "gfortran")
  set (CMAKE_Fortran_FLAGS "-O0 -g -Wall -pedantic")
  set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -pedantic")
- set (CMAKE_Fortran_LINK_FLAGS "-O0 -g -llapack -lblas")
+ set (CMAKE_Fortran_LINK_FLAGS "-O0 -g -Wall -llapack -lblas")
 endif (Fortran_COMPILER_NAME STREQUAL "gfortran")
 
 if (Fortran_COMPILER_NAME STREQUAL "ifort")
