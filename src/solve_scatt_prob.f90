@@ -36,7 +36,7 @@ subroutine solve_scatt_prob
     ! boundary conditions at surface
     ! TODO: integrate the BCs for I to get these BCs rather than hard-coding
     ! them here.
-    matrix( 1, 1 ) = -vef_f_k( 1, i1 ) / dtau( 1 ) - vef_f_h( 1, i1 )
+    matrix( 1, 1 ) = -vef_f_k( 1, i1 ) / dtau( 1 ) - vef_f_h( i1 )
     matrix( 1, 2 ) = vef_f_k( 2, i1 ) / dtau( 1 )
     ! No external illumination means this term is zero.
     rhs( 1 ) = 0.0d+0
@@ -46,7 +46,7 @@ subroutine solve_scatt_prob
                                              dtau( n_depth_pts - 1 )
     matrix( n_depth_pts, n_depth_pts ) = vef_f_k( n_depth_pts, i1 ) / &
                                          dtau( n_depth_pts - 1 ) + &
-                                         vef_f_h( 2, i1 )
+                                         vef_f_h( i1 )
     ! Blackbody at depth. Factor of 1/2 comes from integration of I_+.
     ! TODO: integrate the BCs for I to get these BCs rather than hard-coding
     ! them here.

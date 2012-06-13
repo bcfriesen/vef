@@ -92,13 +92,13 @@ program main
 
   ! Eddington approximation works well as a first guess for the VEFs.
   vef_f_k( :, : ) = 1.0d+0 / 3.0d+0
-  vef_f_h( :, : ) = 1.0d+0 / sqrt( 3.0d+0 )
+  vef_f_h( : ) = 1.0d+0 / sqrt( 3.0d+0 )
 
   call write_vefs
 
   ! keep previous results so we can test for convergence
   vef_f_k_old( :, : ) = vef_f_k( :, : )
-  vef_f_h_old( :, : ) = vef_f_h( :, : )
+  vef_f_h_old( : ) = vef_f_h( : )
 
   ! As a first guess for S_NLTE, use J_LTE. (This guess is waaaay better than
   ! S_NLTE = B.)
@@ -127,10 +127,10 @@ program main
     ! use new values of J and K to get new values of f_K and f_H
     call calc_vefs
     call write_vefs
-    write(*, '(a20, 1x, es11.3e2)') 'VEF RMS change: ', &
+    write(*, '(a20, 1x, es11.3e2)') 'f_K RMS change: ', &
     calc_rmsd( vef_f_k( :, 1 ), vef_f_k_old( :, 1 ) )
     vef_f_k_old( :, : ) = vef_f_k( :, : )
-    vef_f_h_old( :, : ) = vef_f_h( :, : )
+    vef_f_h_old( : ) = vef_f_h( : )
 
   end do
 !-------------------------------END NLTE RUN------------------------------------

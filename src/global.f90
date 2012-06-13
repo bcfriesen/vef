@@ -26,11 +26,11 @@ module global
   ! Eddington factor f_K = K / J
   real(kind=dp), dimension( n_depth_pts, n_wl_pts ) :: vef_f_k
   ! Eddington factor f_H = \int_0^1 j(\mu) \mu d\mu / J
-  real(kind=dp), dimension( 2, n_wl_pts ) :: vef_f_h
+  real(kind=dp), dimension( n_wl_pts ) :: vef_f_h
   ! VEF values from previous iteration. Need these so we can find out when
   ! they've converged.
   real(kind=dp), dimension( n_depth_pts, n_wl_pts ) :: vef_f_k_old
-  real(kind=dp), dimension( 2, n_wl_pts ) :: vef_f_h_old
+  real(kind=dp), dimension( n_wl_pts ) :: vef_f_h_old
   ! source function
   real(kind=dp), dimension( n_depth_pts, n_wl_pts ) :: source_fn
   ! first 3 moments of I
