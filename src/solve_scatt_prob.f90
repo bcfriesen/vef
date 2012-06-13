@@ -12,6 +12,10 @@ subroutine solve_scatt_prob
 
   integer :: i1, i2
   character(len=*), parameter :: whoami = 'solve_scatt_prob'
+  ! error message
+  character(len=80) :: errmsg
+  ! error message format
+  character(len=80) :: wfmt
 
   ! Set up machinery for matrix equation. (matrix * unknown_vector = rhs_vector)
   ! TODO: change from generic matrix solver to tridiagonal solver
@@ -63,16 +67,24 @@ subroutine solve_scatt_prob
                 n_depth_pts, info)
 
     if ( info /= 0 ) then
-      write( *, * ) 'DGESV returned info = ', info
-      call stop_exit(1, whoami, 'could not solve scattering problem')
+      if ( info < 0 ) then
+        wfmt = '(a36, 2x, i2 )'
+        write(errmsg, wfmt) 'this argument to DGESV was invalid: ', -info
+      else if ( info > 0 ) then
+        wfmt = '(a50)'
+        write(errmsg, wfmt) 'DGESV upper triangular matrix factor U is singular'
+      end if
+      call stop_exit( 1, whoami, errmsg )
     end if
 
     j_lambda( :, i1 ) = rhs( : )
 
     do i2 = 1, n_depth_pts
       if ( j_lambda( i2, i1 ) < 0.0d+0 ) then
-        write( *, * ) i2, j_lambda( i2, i1 )
-        call stop_exit( 1, whoami, 'J < 0' )
+        wfmt = '(a22, 2x, i4, a23, 2x, i4)'
+        write(errmsg, wfmt) 'J < 0 at depth point: ', i2, ' and wavelength &
+        &point: ', i1
+        call stop_exit( 1, whoami, errmsg )
       end if
     end do
 

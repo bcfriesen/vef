@@ -44,7 +44,7 @@ module interfaces
   Function calc_rmsd(array1, array2)
     Use precision_mod
     Implicit None
-    Real :: calc_rmsd
+    Real (Kind=dp) :: calc_rmsd
     Real (Kind=dp), Dimension (:) :: array1, array2
   End Function calc_rmsd
 

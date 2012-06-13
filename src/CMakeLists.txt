@@ -1,7 +1,9 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(vef_SOURCES
-calc_moments.f90
+calc_0th_moment_J.f90
+calc_2nd_moment_K.f90
+calc_flux.f90
 calc_rmsd.f90
 calc_source_fn.f90
 calc_vefs.f90

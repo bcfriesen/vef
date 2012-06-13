@@ -40,7 +40,7 @@ program main
 
   ! Set up direction cosine grid. These should be evenly spaced.
   do i1 = 1, n_mu_pts
-    mu_grid( i1 ) = dble( i1 ) * ( 1.0d+0 / dble( n_mu_pts ) )
+    mu_grid( i1 ) = real( i1 ) * ( 1.0d+0 / real( n_mu_pts ) )
   end do
 
   ! Set up wavelength grid.
@@ -58,6 +58,7 @@ program main
   write( *, * ) 'STARTING LTE MODE'
   write( *, * )
 
+  ! set S = B for LTE
   do i1 = 1, n_depth_pts
     do i2 = 1, n_wl_pts
       source_fn( i1, i2 ) = planck_fn( wl_grid( i2 ), temp )
@@ -65,18 +66,16 @@ program main
   end do
   call write_source_fn
 
-  write( *, * ) 'Solving RTE for Feautrier variables...'
+  ! When we switch to NLTE mode we will need a decent starting guess for S in
+  ! order to solve the scattering problem for J. Starting with S = B is a
+  ! terrible guess. A better guess would be S_NLTE = S(J_LTE). So in LTE we will
+  ! calculate J according to its definition, that is, by integrating the
+  ! Feautrier variable j.
+  write( *, * ) 'Solving RTE for Feautrier variable j...'
   write( *, * )
   call solve_rte
 
-  ! In LTE we don't need J to find I since we can write down the formal solution
-  ! immediately. However we need a not-completely-terrible guess for J (i.e.,
-  ! better than J = B) when we start solving the scattering equation in NLTE. So
-  ! we calculate J here, but we won't use it until we start NLTE mode.
-  write( *, * ) 'calculating moments...'
-  write( *, * )
-  call calc_moments
-  call write_moments
+  call calc_0th_moment_j
 
   write( *, * )
   write( *, * ) 'LTE COMPLETE!'
@@ -93,7 +92,7 @@ program main
 
   ! Eddington approximation works well as a first guess for the VEFs.
   vef_f_k( :, : ) = 1.0d+0 / 3.0d+0
-  vef_f_h( :, : ) = 1.0d+0 / dsqrt( 3.0d+0 )
+  vef_f_h( :, : ) = 1.0d+0 / sqrt( 3.0d+0 )
 
   call write_vefs
 
@@ -101,26 +100,34 @@ program main
   vef_f_k_old( :, : ) = vef_f_k( :, : )
   vef_f_h_old( :, : ) = vef_f_h( :, : )
 
+  ! As a first guess for S_NLTE, use J_LTE. (This guess is waaaay better than
+  ! S_NLTE = B.)
+  call calc_source_fn
+  call write_source_fn
+
   ! iterate this loop until VEFs converge
-  do i3 = 1, 20
+  do i3 = 1, 10
 
     write( *, '(a20, 2x, i3)') 'NLTE ITERATION #: ', i3
 
-    ! calculate NLTE source function, given J (if this the first iteration in
-    ! the NLTE loop then J will be J_LTE)
+    ! solve scattering problem to get J
+    call solve_scatt_prob
+
+    ! use J to calculate S(J)
     call calc_source_fn
     call write_source_fn
 
-    call solve_scatt_prob
-
+    ! use S to calculate little_j (Feautrier variable)
     call solve_rte
 
-    call calc_moments
+    ! use little_j to calculate 2nd moment K
+    call calc_2nd_moment_k
     call write_moments
 
+    ! use new values of J and K to get new values of f_K and f_H
     call calc_vefs
     call write_vefs
-    write(*, '(a20, 1x, es9.3e2)') 'VEF RMS change: ', &
+    write(*, '(a20, 1x, es11.3e2)') 'VEF RMS change: ', &
     calc_rmsd( vef_f_k( :, 1 ), vef_f_k_old( :, 1 ) )
     vef_f_k_old( :, : ) = vef_f_k( :, : )
     vef_f_h_old( :, : ) = vef_f_h( :, : )
