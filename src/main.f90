@@ -71,8 +71,6 @@ program main
   ! terrible guess. A better guess would be S_NLTE = S(J_LTE). So in LTE we will
   ! calculate J according to its definition, that is, by integrating the
   ! Feautrier variable j.
-  write( *, * ) 'Solving RTE for Feautrier variable j...'
-  write( *, * )
   call solve_rte
 
   call calc_0th_moment_j
