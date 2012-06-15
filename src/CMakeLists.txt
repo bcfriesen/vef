@@ -16,6 +16,7 @@ solve_scatt_prob.f90
 stop_exit.f90
 write_moments.f90
 write_source_fn.f90
+write_spectrum.f90
 write_vefs.f90
 )
 

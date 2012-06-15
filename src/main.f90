@@ -45,14 +45,14 @@ program main
 
   ! Set up wavelength grid.
   do i1 = 1, n_wl_pts
-    ! TODO: add wavelength dependence later
-    wl_grid( i1 ) = 5000.0d+0
+    wl_grid( i1 ) = 5000.0d+0 + real(i1)*100.0d+0
   end do
 
   open( unit = 22, file = 'source_fn.dat' )
   open( unit = 23, file = 'moments.dat' )
   open( unit = 24, file = 'f_K.dat' )
   open( unit = 25, file = 'f_H.dat' )
+  open( unit = 30, file = 'spectrum.dat' )
 
 !----------------------START LTE RUN TO GET FIRST GUESS FOR J-------------------
   write( *, * ) 'STARTING LTE MODE'
@@ -136,10 +136,13 @@ program main
   end do
 !-------------------------------END NLTE RUN------------------------------------
 
+  call write_spectrum
+
   close( 22 )
   close( 23 )
   close( 24 )
   close( 25 )
+  close( 30 )
 
   stop
 end program main

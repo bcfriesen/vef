@@ -5,8 +5,11 @@ Auer, L. H. "Difference equations and linearization methods for
 radiative transfer." Ed. Wolfgang Kalkofen. "Methods in Radiative
 Transfer".  Cambridge: Cambridge UP, 1984. 237-79.
 
+A lousy tutorial to accompany this code is here:
+http://www.nhn.ou.edu/~friesen/vef.html
+
 I use the CMake build system, mostly because I hate writing
-makefiles. Here is how to compile the code:
+makefiles. Here is how to use CMake to compile the code:
 
 cd vef
 mkdir build
