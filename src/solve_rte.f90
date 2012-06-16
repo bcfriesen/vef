@@ -9,13 +9,17 @@ subroutine solve_rte
 
   integer :: i1, i2, i3
   character(len=*), parameter :: whoami = 'solve_rte'
+  ! error message
+  character(len=80) :: errmsg
+  ! error message format
+  character(len=80) :: wfmt
 
   ! Set up machinery for matrix equation. (matrix * unknown_vector = rhs_vector)
-  ! TODO: change from generic matrix solver to tridiagonal solver
-  real(kind=dp), dimension( n_depth_pts, n_depth_pts ) :: matrix
+  ! Since the matrix is tridiagonal we only need 3 vectors to hold all the
+  ! elements.
+  real(kind=dp), dimension( n_depth_pts ) :: diag
+  real(kind=dp), dimension( n_depth_pts - 1 ) :: ldiag, udiag
   real(kind=dp), dimension( n_depth_pts ) :: rhs
-  ! pivot indices; LAPACK needs these
-  integer, dimension( n_depth_pts ) :: ipiv
   ! LAPACK driver info flag
   integer :: info
 
@@ -26,39 +30,49 @@ subroutine solve_rte
     ! loop over direction cosines
     do i2 = 1, n_mu_pts
 
-      matrix( :, : ) = 0.0d+0
+      diag( : ) = 0.0d+0
+      udiag( : ) = 0.0d+0
+      ldiag( : ) = 0.0d+0
       rhs( : ) = 0.0d+0
 
       ! boundary conditions at surface
-      matrix( 1, 1 ) = -( 1.0d+0 / dtau( 1 ) ) - ( 1.0d+0 / mu_grid( i2 ) )
-      matrix( 1, 2 ) = 1.0d+0 / dtau( 1 )
+      diag( 1 ) = -( 1.0d+0 / dtau( 1 ) ) - ( 1.0d+0 / mu_grid( i2 ) )
+      udiag( 1 ) = 1.0d+0 / dtau( 1 )
       ! No external illumination means this term is zero.
+      ! TODO: integrate the BCs for I to get these BCs rather than hard-coding
+      ! them here.
       rhs( 1 ) = 0.0d+0
 
       ! boundary conditions at depth
-      matrix( n_depth_pts, n_depth_pts - 1 ) = -1.0d+0 / &
-                                               dtau( n_depth_pts - 1 )
-      matrix( n_depth_pts, n_depth_pts ) = 1.0d+0 / dtau( n_depth_pts - 1 ) + &
-                                           1.0d+0 / mu_grid( i2 )
+      ldiag( n_depth_pts - 1 ) = -1.0d+0 / dtau( n_depth_pts - 1 )
+      diag( n_depth_pts ) = 1.0d+0 / dtau( n_depth_pts - 1 ) + &
+                            1.0d+0 / mu_grid( i2 )
       ! Blackbody at depth. (isothermal -> no dB/dtau term)
+      ! TODO: integrate the BCs for I to get these BCs rather than hard-coding
+      ! them here.
       rhs ( n_depth_pts ) = planck_fn( wl_grid( i1 ), temp ) / &
                             mu_grid( i2 )
 
       do i3 = 2, n_depth_pts - 1
-        matrix( i3, i3 - 1 ) = 1.0d+0 / ( dtau( i3 - 1 ) * dtau_tilde( i3 ) )
-        matrix( i3, i3 ) = -2.0d+0 / ( dtau( i3 - 1 ) * dtau( i3 ) ) - &
-                           1.0d+0 / mu_grid( i2 )**2
-        matrix( i3, i3 + 1 ) = 1.0d+0 / ( dtau( i3 ) * dtau_tilde( i3 ) )
+        ldiag( i3 - 1 ) = 1.0d+0 / ( dtau( i3 - 1 ) * dtau_tilde( i3 ) )
+        diag( i3 ) = -2.0d+0 / ( dtau( i3 - 1 ) * dtau( i3 ) ) - &
+                     1.0d+0 / mu_grid( i2 )**2
+        udiag( i3 ) = 1.0d+0 / ( dtau( i3 ) * dtau_tilde( i3 ) )
         rhs( i3 ) = -1.0d+0 / mu_grid( i2 )**2 * source_fn( i3, i1 )
       end do
 
       ! Solve for Feautrier variable j
-      call dgesv( n_depth_pts, 1, matrix, n_depth_pts, ipiv, rhs, &
-                  n_depth_pts, info)
+      call dgtsv( n_depth_pts, 1, ldiag, diag, udiag, rhs, n_depth_pts, info)
 
       if ( info /= 0 ) then
-        write( *, * ) 'DGESV returned info = ', info
-        call stop_exit(1, whoami, 'could not solve scattering problem')
+        if ( info < 0 ) then
+          wfmt = '(a36, 2x, i2 )'
+          write(errmsg, wfmt) 'this argument to DGTSV was invalid: ', -info
+        else if ( info > 0 ) then
+          wfmt = '(a50)'
+          write(errmsg, wfmt) 'DGTSV upper triangular matrix factor U is &
+                              &singular'
+        end if
       end if
 
       little_j( :, i2, i1 ) = rhs( : )

@@ -24,7 +24,7 @@ set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}")
 
 add_executable(vef ${vef_SOURCES})
 
-#-----------------------------BEGIN ADD LIBRARIES-----------------------------
+#------------------------------BEGIN ADD LIBRARIES------------------------------
 find_package(BLAS)
 if (BLAS_FOUND)
   include_directories(${BLAS_INCLUDE_DIRS})
@@ -35,4 +35,4 @@ if (LAPACK_FOUND)
   include_directories(${LAPACK_INCLUDE_DIRS})
   target_link_libraries(vef ${LAPACK_LIBRARIES})
 endif (LAPACK_FOUND)
-#------------------------------END ADD LIBRARIES------------------------------
+#-------------------------------END ADD LIBRARIES-------------------------------

@@ -1,2 +1,1 @@
 - implement OpenMP parallelization
-- change generic linear solvers to tridiagonal solvers
