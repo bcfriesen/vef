@@ -50,6 +50,15 @@ macro_ensure_out_of_source_build("${PROJECT_NAME} requires an out of source buil
 #----------------------------END ADD EXTRA MODULES------------------------------
 
 
+#-------------------------------BEGIN ADD OPENMP--------------------------------
+find_package(OpenMP)
+if (OPENMP_FOUND)
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_Fortran_LINK_FLAGS "${CMAKE_Fortran_LINK_FLAGS} ${OpenMP_C_FLAGS}")
+endif (OPENMP_FOUND)
+#--------------------------------END ADD OPENMP---------------------------------
+
+
 
 #-----------------------------BEGIN ADD SOURCE CODE-----------------------------
 add_subdirectory(src)

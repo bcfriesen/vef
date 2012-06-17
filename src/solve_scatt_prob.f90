@@ -28,6 +28,9 @@ subroutine solve_scatt_prob
 
   ! Since wavelengths aren't coupled we can solve the scattering problem for
   ! each wavelength separately. This outer loop would parallelize perfectly.
+
+!$omp parallel private(i1, i2, diag, udiag, ldiag, rhs) shared(j_lambda)
+!$omp do
   do i1 = 1, n_wl_pts
 
     diag( : ) = 0.0d+0
@@ -89,5 +92,7 @@ subroutine solve_scatt_prob
     end do
 
   end do
+!$omp end do
+!$omp end parallel
 
 end subroutine solve_scatt_prob

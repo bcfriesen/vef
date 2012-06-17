@@ -25,6 +25,9 @@ subroutine solve_rte
 
   ! Since wavelengths aren't coupled we can solve the scattering problem for
   ! each wavelength separately. This outer loop would parallelize perfectly.
+
+!$omp parallel private(i1, i2, i3, diag, udiag, ldiag, rhs) shared(little_j)
+!$omp do
   do i1 = 1, n_wl_pts
 
     ! loop over direction cosines
@@ -87,5 +90,7 @@ subroutine solve_rte
     end do
 
   end do
+!$omp end do
+!$omp end parallel
 
 end subroutine solve_rte
