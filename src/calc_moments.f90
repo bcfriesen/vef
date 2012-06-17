@@ -9,13 +9,14 @@ subroutine calc_0th_moment_j
 
   do i1 = 1, n_wl_pts
     do i2 = 1, n_depth_pts
-      do i3 = 1, n_mu_pts - 1
-        ! Romberg integration
+      ! trapezoid rule
+      j_lambda( i2, i1 ) = little_j( i2, 1, i1 ) + little_j( i2, n_mu_pts, i1 )
+      do i3 = 2, n_mu_pts - 1
         j_lambda( i2, i1 ) = j_lambda( i2, i1 ) + &
-        0.5d+0 * ( little_j( i2, i3, i1 ) + &
-        little_j( i2, i3 + 1, i1 ) ) * &
-        ( mu_grid( i3 + 1 ) - mu_grid( i3 ) )
+        2.0d+0 * little_j( i2, i3, i1 )
       end do
+      j_lambda( i2, i1 ) = j_lambda( i2, i1 ) * ( mu_grid( n_mu_pts ) - &
+      mu_grid( 1 ) ) / ( 2.0d+0 * real( n_mu_pts - 1 ) )
 
       ! even moments of I can't be negative, but odd moments can be
       if ( j_lambda( i2, i1 ) < 0.0d+0 ) then
@@ -41,13 +42,15 @@ subroutine calc_2nd_moment_k
 
   do i1 = 1, n_wl_pts
     do i2 = 1, n_depth_pts
-      do i3 = 1, n_mu_pts - 1
-        ! Romberg integration
+      ! trapezoid rule
+      k_lambda( i2, i1 ) = little_j( i2, 1, i1 ) * mu_grid( 1 )**2 + &
+      little_j( i2, n_mu_pts, i1 ) * mu_grid( n_mu_pts )**2
+      do i3 = 2, n_mu_pts - 1
         k_lambda( i2, i1 ) = k_lambda( i2, i1 ) + &
-        0.5d+0 * ( little_j( i2, i3, i1 ) * mu_grid( i3 )**2 + &
-        little_j( i2, i3 + 1, i1 ) * mu_grid( i3 + 1 )**2 ) * &
-        ( mu_grid( i3 + 1 ) - mu_grid( i3 ) )
+        2.0d+0 * little_j( i2, i3, i1 ) * mu_grid( i3 )**2
       end do
+      k_lambda( i2, i1 ) = k_lambda( i2, i1 ) * ( mu_grid( n_mu_pts ) - &
+      mu_grid( 1 ) ) / ( 2.0d+0 * real( n_mu_pts - 1 ) )
 
       ! even moments of I can't be negative, but odd moments can be
       if ( k_lambda( i2, i1 ) < 0.0d+0 ) then

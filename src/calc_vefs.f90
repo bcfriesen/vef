@@ -19,13 +19,18 @@ subroutine calc_vefs
     end do
 
     ! calculate f_H at surface
-    do i2 = 1, n_mu_pts - 1
-      ! Romberg integration from 0 < mu < 1
-      vef_f_h( i1 ) = vef_f_h( i1 ) + 0.5d+0 * ( little_j( 1, i2, i1 ) &
-      * mu_grid( i2 ) + little_j( 1, i2 + 1, i1 ) * mu_grid( i2 + 1 ) ) * &
-      ( mu_grid( i2 + 1 ) - mu_grid( i2 ) )
+    ! trapezoid rule
+    vef_f_h( i1 ) = little_j( 1, 1, i1 ) * mu_grid( 1 ) + &
+    little_j( 1, n_mu_pts, i1 ) * mu_grid( n_mu_pts )
+    do i2 = 2, n_mu_pts - 1
+      vef_f_h( i1 ) = vef_f_h( i1 ) + &
+      2.0d+0 * little_j( 1, i2, i1 ) * mu_grid( i2 )
     end do
+    vef_f_h( i1 ) = vef_f_h( i1 ) * ( mu_grid( n_mu_pts ) - &
+    mu_grid( 1 ) ) / ( 2.0d+0 * real( n_mu_pts - 1 ) )
+
     vef_f_h( i1 ) = vef_f_h( i1 ) / j_lambda( 1, i1 )
+
     if ( vef_f_h( i1 ) < 0.0d+0 ) call stop_exit( 1, whoami, 'f_H < 0' )
 
   end do

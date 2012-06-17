@@ -27,13 +27,14 @@ subroutine calc_flux
 
     ! calculate H, the 1st moment of I
     do i2 = 1, n_depth_pts
-      do i3 = 1, n_mu_pts - 1
-        ! Romberg integration
+      ! trapezoid rule
+      h_lambda( i2, i1 ) = little_h( i2, 1, i1 ) + little_h( i2, n_mu_pts, i1 )
+      do i3 = 2, n_mu_pts - 1
         h_lambda( i2, i1 ) = h_lambda( i2, i1 ) + &
-        0.5d+0 * ( little_h( i2, i3, i1 ) * mu_grid( i3 ) + &
-        little_h( i2, i3 + 1, i1 ) * mu_grid( i3 + 1 ) ) * &
-        ( mu_grid( i3 + 1 ) - mu_grid( i3 ) )
+        2.0d+0 * little_h( i2, i3, i1 )
       end do
+      h_lambda( i2, i1 ) = h_lambda( i2, i1 ) * ( mu_grid( n_mu_pts ) - &
+      mu_grid( 1 ) ) / ( 2.0d+0 * real( n_mu_pts - 1 ) )
     end do
 
   end do
