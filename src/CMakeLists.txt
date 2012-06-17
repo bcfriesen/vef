@@ -7,6 +7,7 @@ calc_rmsd.f90
 calc_source_fn.f90
 calc_vefs.f90
 global.f90
+grid_funcs.f90
 interfaces.f90
 main.f90
 planck_fn.f90

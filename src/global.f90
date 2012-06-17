@@ -6,7 +6,7 @@ module global
   ! # of direction cosine points.
   integer, parameter :: n_mu_pts = 50
   ! # of wavelength points
-  integer, parameter :: n_wl_pts = 100
+  integer, parameter :: n_wl_pts = 1
 
   ! maximum optical depth to consider
   real(kind=dp), parameter :: tau_max = 1.0d+4
