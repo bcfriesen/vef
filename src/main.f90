@@ -45,7 +45,8 @@ program main
 
   ! Set up wavelength grid.
   do i1 = 1, n_wl_pts
-    wl_grid( i1 ) = 5000.0d+0 + real(i1)*100.0d+0
+    wl_grid( i1 ) = wlmin + real( i1 - 1 ) * ( wlmax - wlmin ) / &
+    real( n_wl_pts - 1 )
   end do
 
   open( unit = 22, file = 'source_fn.dat' )
@@ -64,7 +65,7 @@ program main
       source_fn( i1, i2 ) = planck_fn( wl_grid( i2 ), temp )
     end do
   end do
-  call write_source_fn
+  !call write_source_fn
 
   ! When we switch to NLTE mode we will need a decent starting guess for S in
   ! order to solve the scattering problem for J. Starting with S = B is a
@@ -92,7 +93,7 @@ program main
   vef_f_k( :, : ) = 1.0d+0 / 3.0d+0
   vef_f_h( : ) = 1.0d+0 / sqrt( 3.0d+0 )
 
-  call write_vefs
+  !call write_vefs
 
   ! keep previous results so we can test for convergence
   vef_f_k_old( :, : ) = vef_f_k( :, : )
@@ -101,7 +102,7 @@ program main
   ! As a first guess for S_NLTE, use J_LTE. (This guess is waaaay better than
   ! S_NLTE = B.)
   call calc_source_fn
-  call write_source_fn
+  !call write_source_fn
 
   ! TODO: iterate this loop until VEFs converge
   do i3 = 1, 20
@@ -113,7 +114,7 @@ program main
 
     ! use J to calculate S(J)
     call calc_source_fn
-    call write_source_fn
+    !call write_source_fn
 
     ! use S to calculate little_j (Feautrier variable)
     call solve_rte
@@ -123,11 +124,11 @@ program main
 
     ! use little_j to calculate 2nd moment K
     call calc_2nd_moment_k
-    call write_moments
+    !call write_moments
 
     ! use new values of J and K to get new values of f_K and f_H
     call calc_vefs
-    call write_vefs
+    !call write_vefs
     write(*, '(a20, 1x, es11.3e2)') 'f_K RMS change: ', &
     calc_rmsd( vef_f_k( :, 1 ), vef_f_k_old( :, 1 ) )
     vef_f_k_old( :, : ) = vef_f_k( :, : )

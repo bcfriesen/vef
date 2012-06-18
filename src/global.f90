@@ -6,17 +6,22 @@ module global
   ! # of direction cosine points.
   integer, parameter :: n_mu_pts = 50
   ! # of wavelength points
-  integer, parameter :: n_wl_pts = 1
+  integer, parameter :: n_wl_pts = 100
 
   ! maximum optical depth to consider
   real(kind=dp), parameter :: tau_max = 1.0d+4
   ! minimum non-zero optical depth to consider
   real(kind=dp), parameter :: tau_min = 1.0d-8
 
+  ! minimum wavelength
+  real(kind=dp), parameter :: wlmin = 1000.0d+0
+  ! maximum wavelength
+  real(kind=dp), parameter :: wlmax = 10000.0d+0
+
   ! Thermalization parameter for source function in isotropic, monochromatic
   ! scattering (Milne-Eddington problem). eps = 1 means pure LTE; eps = 0 means
   ! pure scattering (like SYNOW).
-  real(kind=dp), parameter :: me_therm_parm = 1.0e-4
+  real(kind=dp), parameter :: me_therm_parm = 1.0d-4
   ! optical depth grid
   real(kind=dp), dimension( n_depth_pts ) :: tau_grid
   ! direction cosine grid
