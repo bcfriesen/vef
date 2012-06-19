@@ -53,7 +53,7 @@ subroutine solve_rte
       ! Blackbody at depth. (isothermal -> no dB/dtau term)
       ! TODO: integrate the BCs for I to get these BCs rather than hard-coding
       ! them here.
-      rhs ( n_depth_pts ) = planck_fn( wl_grid( i1 ), temp ) / &
+      rhs ( n_depth_pts ) = planck_fn( wl_grid( i1 ) * a2cm, temp ) / &
                             mu_grid( i2 )
 
       do i3 = 2, n_depth_pts - 1

@@ -54,7 +54,7 @@ subroutine solve_scatt_prob
     ! Blackbody at depth. Factor of 1/2 comes from integration of I_+.
     ! TODO: integrate the BCs for I to get these BCs rather than hard-coding
     ! them here.
-    rhs ( n_depth_pts ) = planck_fn( wl_grid( i1 ), temp ) / 2.0d+0
+    rhs ( n_depth_pts ) = planck_fn( wl_grid( i1 ) * a2cm, temp ) / 2.0d+0
 
     do i2 = 2, n_depth_pts - 1
       ldiag( i2 - 1 ) = 1.0d+0 / ( dtau( i2 - 1 ) * dtau_tilde( i2 ) ) * &

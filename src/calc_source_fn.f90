@@ -17,7 +17,7 @@ subroutine calc_source_fn
 
       ! Milne-Eddington source function
       source_fn( i2, i1 ) = &
-      me_therm_parm * planck_fn( wl_grid( i1 ), temp ) + &
+      me_therm_parm * planck_fn( wl_grid( i1 ) * a2cm, temp ) + &
       ( 1.0d+0 - me_therm_parm ) * j_lambda( i2, i1 )
       
       if ( source_fn( i2, i1 ) < 0.0d+0 ) &

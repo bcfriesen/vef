@@ -62,7 +62,7 @@ program main
   ! set S = B for LTE
   do i1 = 1, n_depth_pts
     do i2 = 1, n_wl_pts
-      source_fn( i1, i2 ) = planck_fn( wl_grid( i2 ), temp )
+      source_fn( i1, i2 ) = planck_fn( wl_grid( i2 ) * a2cm, temp )
     end do
   end do
   !call write_source_fn

@@ -17,7 +17,7 @@ subroutine write_moments
     do i2 = 1, n_depth_pts
       write( 23, wfmt ) tau_grid( i2 ), j_lambda( i2, i1 ), &
                         h_lambda( i2, i1 ), k_lambda( i2, i1 ), &
-                        planck_fn( wl_grid( i1 ), temp )
+                        planck_fn( wl_grid( i1 ) * a2cm, temp )
     end do
   end do
 
