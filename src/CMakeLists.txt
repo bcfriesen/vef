@@ -1,6 +1,5 @@
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(vef_SOURCES
+SET (CMAKE_INCLUDE_CURRENT_DIR ON)
+SET (vef_SOURCES
 calc_flux.f90
 calc_moments.f90
 calc_rmsd.f90
@@ -21,19 +20,24 @@ write_spectrum.f90
 write_vefs.f90
 )
 
-set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}")
+SET (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
-add_executable(vef ${vef_SOURCES})
+ADD_EXECUTABLE(vef ${vef_SOURCES})
 
 #------------------------------BEGIN ADD LIBRARIES------------------------------
-find_package(BLAS)
-if (BLAS_FOUND)
-  include_directories(${BLAS_INCLUDE_DIRS})
-  target_link_libraries(vef ${BLAS_LIBRARIES})
-endif (BLAS_FOUND)
-find_package(LAPACK)
-if (LAPACK_FOUND)
-  include_directories(${LAPACK_INCLUDE_DIRS})
-  target_link_libraries(vef ${LAPACK_LIBRARIES})
-endif (LAPACK_FOUND)
+IF (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+  SET (CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -framework Accelerate")
+ELSE ()
+  FIND_PACKAGE (BLAS)
+  IF (BLAS_FOUND)
+    INCLUDE_DIRECTORIES (${BLAS_INCLUDE_DIRS})
+    TARGET_LINK_LIBRARIES (vef ${BLAS_LIBRARIES})
+  ENDIF (BLAS_FOUND)
+
+  FIND_PACKAGE (LAPACK)
+  IF (LAPACK_FOUND)
+    INCLUDE_DIRECTORIES (${LAPACK_INCLUDE_DIRS})
+    TARGET_LINK_LIBRARIES (vef ${LAPACK_LIBRARIES})
+  ENDIF (LAPACK_FOUND)
+ENDIF (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 #-------------------------------END ADD LIBRARIES-------------------------------
