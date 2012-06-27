@@ -48,6 +48,12 @@ module interfaces
     Real (Kind=dp), Dimension (:) :: array1, array2
   End Function calc_rmsd
 
+  function gaussian(lambda, norm, lambda_0, sigma)
+    use precision_mod
+    implicit none
+    real(kind=dp) :: gaussian
+    real(kind=dp) :: lambda, norm, lambda_0, sigma
+  end function gaussian
 
   end interface
 

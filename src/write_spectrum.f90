@@ -7,7 +7,7 @@ subroutine write_spectrum
 
   wfmt = '(2a12)'
   write( 30, wfmt ) 'lambda (A)', 'H'
-  wfmt = '(3es12.4e2)'
+  wfmt = '(2es12.4e2)'
   do i1 = 1, n_wl_pts
     write( 30, wfmt ) wl_grid( i1 ), h_lambda( 1, i1 )
   end do

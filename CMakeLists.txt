@@ -4,7 +4,7 @@ ENABLE_LANGUAGE (Fortran)
 
 #----------------------------BEGIN COMPILER STUFF-------------------------------
 set (CMAKE_BUILD_TYPE "Debug")
-set (CMAKE_VERBOSE_MAKEFILE true)
+set (CMAKE_VERBOSE_MAKEFILE false)
 
 # uncomment next line to force Intel's compiler
 SET (CMAKE_Fortran_COMPILER "ifort")
