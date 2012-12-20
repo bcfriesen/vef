@@ -4,7 +4,7 @@ module global
   ! # of optical depth points
   integer, parameter :: n_depth_pts = 100
   ! # of direction cosine points.
-  integer, parameter :: n_mu_pts = 50
+  integer, parameter :: n_mu_pts = n_depth_pts
   ! # of wavelength points
   integer, parameter :: n_wl_pts = 100
 
