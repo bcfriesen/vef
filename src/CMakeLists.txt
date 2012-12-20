@@ -11,6 +11,7 @@ grid_funcs.f90
 interfaces.f90
 line_profiles.f90
 main.f90
+opacity.f90
 planck_fn.f90
 precision_mod.f90
 solve_rte.f90
