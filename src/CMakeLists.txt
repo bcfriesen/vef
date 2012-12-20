@@ -1,10 +1,13 @@
+
 SET (CMAKE_INCLUDE_CURRENT_DIR ON)
+
 SET (vef_SOURCES
 calc_flux.f90
 calc_moments.f90
 calc_rmsd.f90
 calc_source_fn.f90
 calc_vefs.f90
+collisional_rates.f90
 const.f90
 global.f90
 grid_funcs.f90
@@ -14,8 +17,10 @@ main.f90
 opacity.f90
 planck_fn.f90
 precision_mod.f90
+radiative_rates.f90
 solve_rte.f90
 solve_scatt_prob.f90
+solve_statistical_equations.f90
 stop_exit.f90
 write_moments.f90
 write_source_fn.f90
@@ -23,9 +28,17 @@ write_spectrum.f90
 write_vefs.f90
 )
 
+add_subdirectory(
+    ${PROJECT_SOURCE_DIR}/src/saha_boltzmann
+    )
+
 SET (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 ADD_EXECUTABLE(vef ${vef_SOURCES})
+
+TARGET_LINK_LIBRARIES(vef
+    saha_boltzmann
+    )
 
 #------------------------------BEGIN ADD LIBRARIES------------------------------
 IF (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")

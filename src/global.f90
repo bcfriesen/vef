@@ -48,6 +48,12 @@ module global
   ! blackbody temperature at depth
   ! TODO: add temperature dependence
   real(kind=dp), parameter :: temp = 1.0d+4
+  ! free electron density
+  real(kind=dp), dimension( n_depth_pts ) :: n_e
+  ! # of levels in model atom for H I
+  integer, parameter :: n_levels = 16
+  ! LTE level populations
+  real(kind=dp), dimension( n_depth_pts, n_levels ) :: n_i_star
 
   ! convert Angstrom to cm
   real(kind=dp), parameter :: a2cm = 1.0d-8

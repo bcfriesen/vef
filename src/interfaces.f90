@@ -55,6 +55,62 @@ module interfaces
     real(kind=dp) :: lambda, norm, lambda_0, sigma
   end function gaussian
 
+  function c_ij(i, j)
+    use precision_mod
+    implicit none
+    real(kind=dp) :: c_ij
+    integer :: i, j
+  end function c_ij
+
+  function c_ji(j, i)
+    use precision_mod
+    implicit none
+    real(kind=dp) :: c_ji
+    integer :: j, i
+  end function c_ji
+
+  function c_ik(i)
+    use precision_mod
+    implicit none
+    real(kind=dp) :: c_ik
+    integer :: i
+  end function c_ik
+
+  function c_ki(i)
+    use precision_mod
+    implicit none
+    real(kind=dp) :: c_ki
+    integer :: i
+  end function c_ki
+
+  function r_ij(i, j)
+    use precision_mod
+    implicit none
+    real(kind=dp) :: r_ij
+    integer :: i, j
+  end function r_ij
+
+  function z_ji(j, i)
+    use precision_mod
+    implicit none
+    real(kind=dp) :: z_ji
+    integer :: j, i
+  end function z_ji
+
+  function r_ik(i)
+    use precision_mod
+    implicit none
+    real(kind=dp) :: r_ik
+    integer :: i
+  end function r_ik
+
+  function r_ki(i)
+    use precision_mod
+    implicit none
+    real(kind=dp) :: r_ki
+    integer :: i
+  end function r_ki
+
   end interface
 
 end module interfaces
