@@ -1,15 +1,13 @@
 SET (sb_solver_SOURCES
-    atomicdata.f90
-    globalvars.f90
-    f_ij.f90
-    fill_atomic_data.f90
-    interfaces.f90
-    machine.f90
-    main.f90
-    part_func.f90
-    saha.f90
-    solvene.f90
-    zeroin.f
+    saha_boltzmann/atomicdata.f90
+    saha_boltzmann/f_ij.f90
+    saha_boltzmann/fill_atomic_data.f90
+    saha_boltzmann/part_func.f90
+    saha_boltzmann/saha.f90
+    saha_boltzmann/solvene.f90
+    saha_boltzmann/zeroin.f
     )
 
-ADD_LIBRARY (saha_boltzmann ${sb_solver_SOURCES})
+include_directories(
+    ${PROJECT_BINARY_DIR}/src
+    )

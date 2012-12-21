@@ -4,8 +4,8 @@
 !! @param j ion index for atom \f$i\f$
 FUNCTION part(i, j)
   USE atomicdata
-  USE globalvars
-  USE machine
+  USE global
+  USE precision_mod
   IMPLICIT NONE
   REAL (KIND=dp) :: part
   INTEGER :: i
@@ -15,7 +15,7 @@ FUNCTION part(i, j)
 
   part = 0.0D0
   DO m = 1, nlvl(i, j)
-    part = part + dble(g_i(i,j,m))*dexp(-(chilvl(i,j,m)*ev2erg)/(k_b*t))
+    part = part + dble(g_i(i,j,m))*dexp(-(chilvl(i,j,m)*ev2erg)/(k_b*temp))
   END DO
   RETURN
 END FUNCTION part

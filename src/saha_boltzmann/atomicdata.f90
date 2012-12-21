@@ -1,7 +1,7 @@
 !> Holds all the relevant atomic data and physical constants. All units are CGS
 !! unless specified explicitly.
 MODULE atomicdata
-  USE machine
+  USE precision_mod
   IMPLICIT NONE
 
   INTEGER, PARAMETER :: nlvlmax = 100 !< maximum number of levels for any given atom.

@@ -6,7 +6,7 @@
 !! @param t temperature
 FUNCTION saha(i, j, n_e, t)
   USE atomicdata
-  USE machine
+  USE precision_mod
   IMPLICIT NONE
   REAL (KIND=dp) :: saha
   INTEGER :: i

@@ -4,7 +4,7 @@ c> @param bx upper limit of root search domain
 c> @param f function whose root we're looking for
 c> @param tol error tolerance
       function zeroin(ax, bx, f, tol)
-      use machine
+      use precision_mod
       real(kind=dp) :: zeroin
       real(kind=dp) :: ax
       real(kind=dp) :: bx

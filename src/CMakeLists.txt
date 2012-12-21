@@ -1,4 +1,3 @@
-
 SET (CMAKE_INCLUDE_CURRENT_DIR ON)
 
 SET (vef_SOURCES
@@ -28,16 +27,13 @@ write_spectrum.f90
 write_vefs.f90
 )
 
-add_subdirectory(
-    ${PROJECT_SOURCE_DIR}/src/saha_boltzmann
-    )
+include(saha_boltzmann/CMakeLists.txt)
 
 SET (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
-ADD_EXECUTABLE(vef ${vef_SOURCES})
-
-TARGET_LINK_LIBRARIES(vef
-    saha_boltzmann
+ADD_EXECUTABLE(vef
+    ${vef_SOURCES}
+    ${sb_solver_SOURCES}
     )
 
 #------------------------------BEGIN ADD LIBRARIES------------------------------

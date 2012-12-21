@@ -4,7 +4,7 @@
 !! @param n_e free electron number density
 !! @param t temperature
 FUNCTION f_ij(i, j, n_e, t)
-  USE machine
+  USE precision_mod
   USE interfaces, ONLY: saha
   IMPLICIT NONE
   REAL (KIND=dp) :: f_ij

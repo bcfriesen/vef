@@ -44,7 +44,6 @@ module global
   ! of specific intensities, so they only span from 0 < mu < 1, rather than from
   ! -1 < mu < 1
   real(kind=dp), dimension( n_depth_pts, n_mu_pts, n_wl_pts ) :: little_j, little_h
-
   ! blackbody temperature at depth
   ! TODO: add temperature dependence
   real(kind=dp), parameter :: temp = 1.0d+4
@@ -54,6 +53,8 @@ module global
   integer, parameter :: n_levels = 16
   ! LTE level populations
   real(kind=dp), dimension( n_depth_pts, n_levels ) :: n_i_star
+  REAL (KIND=dp) :: p_g !< total gas pressure
+  REAL (KIND=dp) :: y(92) !< number fraction of each element
 
   ! convert Angstrom to cm
   real(kind=dp), parameter :: a2cm = 1.0d-8
