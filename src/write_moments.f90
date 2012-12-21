@@ -1,6 +1,7 @@
 subroutine write_moments
   use global
   use interfaces, only: planck_fn
+  use const, only: a2cm
   implicit none
 
   integer :: i1, i2

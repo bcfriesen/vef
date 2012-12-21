@@ -3,7 +3,7 @@
 subroutine calc_source_fn
   use interfaces, only: planck_fn, stop_exit, phi=>gaussian
   use global
-  use const
+  use const, only: a2cm, pi
   implicit none
 
   integer :: i1, i2, i3

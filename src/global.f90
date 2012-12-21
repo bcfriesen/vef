@@ -56,7 +56,4 @@ module global
   REAL (KIND=dp) :: p_g !< total gas pressure
   REAL (KIND=dp) :: y(92) !< number fraction of each element
 
-  ! convert Angstrom to cm
-  real(kind=dp), parameter :: a2cm = 1.0d-8
-
 end module global

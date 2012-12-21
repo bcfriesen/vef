@@ -7,6 +7,7 @@
 FUNCTION saha(i, j, n_e, t)
   USE atomicdata
   USE precision_mod
+  use const, only: ev2erg, h_bar, k_boltz, m_e, pi
   IMPLICIT NONE
   REAL (KIND=dp) :: saha
   INTEGER :: i
@@ -16,8 +17,8 @@ FUNCTION saha(i, j, n_e, t)
   REAL (KIND=dp), EXTERNAL :: part
   ! this is the Saha equation with n_e lumped together with all the
   ! temperature-dependent stuff, so what it returns is \f$n_{i,j+1}/n_{i,j}\f$
-  saha = (1.0D0 / n_e ) * (dble(g_e) / (2.0D0 * pi * hbar)**3) * (part(i, j+1) / &
-         part(i, j)) * (2.0D0 * pi * m_e * k_b * t)**(1.5D0) * dexp(-(chiion(i, j) * &
-         ev2erg) / (k_b * t))
+  saha = (1.0D0 / n_e ) * (dble(g_e) / (2.0D0 * pi * h_bar)**3) * (part(i, j+1) / &
+         part(i, j)) * (2.0D0 * pi * m_e * k_boltz * t)**(1.5D0) * dexp(-(chiion(i, j) * &
+         ev2erg) / (k_boltz * t))
   RETURN
 END FUNCTION saha

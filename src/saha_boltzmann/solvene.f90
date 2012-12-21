@@ -4,6 +4,7 @@ FUNCTION solvene(layer)
   USE atomicdata
   USE global
   USE precision_mod
+  use const, only: k_boltz
   IMPLICIT NONE
   REAL (KIND=dp) :: solvene
   integer :: layer
@@ -17,7 +18,7 @@ FUNCTION solvene(layer)
   INTEGER :: j !< loops
 
   ! get particle density from ideal gas law
-  ng = p_g / (k_b * temp)
+  ng = p_g / (k_boltz * temp)
   denom = 0.0D0
   term1 = 0.0D0
   term2 = 0.0D0

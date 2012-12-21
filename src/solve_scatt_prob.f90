@@ -5,6 +5,7 @@ subroutine solve_scatt_prob
   use precision_mod
   use global
   use interfaces, only: dtau, dtau_tilde, planck_fn, stop_exit
+  use const, only: a2cm
   implicit none
 
   ! NOTE: this method assumes static media, i.e., wavelengths aren't coupled.

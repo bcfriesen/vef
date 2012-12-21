@@ -54,7 +54,8 @@ function sigma_kk(nu)
       use precision_mod
       use interfaces
       use const
-      use global
+      use const, only: h_planck, k_boltz
+      use global, only: temp
       implicit none
       real(kind=dp) :: sigma_kk
       real(kind=dp) :: nu, nu_min

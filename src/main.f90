@@ -7,6 +7,7 @@ program main
   use precision_mod
   use interfaces
   use global
+  use const, only: a2cm
   implicit none
 
   integer :: i1, i2, i3

@@ -6,6 +6,7 @@ FUNCTION part(i, j)
   USE atomicdata
   USE global
   USE precision_mod
+  use const, only: ev2erg, k_boltz
   IMPLICIT NONE
   REAL (KIND=dp) :: part
   INTEGER :: i
@@ -15,7 +16,7 @@ FUNCTION part(i, j)
 
   part = 0.0D0
   DO m = 1, nlvl(i, j)
-    part = part + dble(g_i(i,j,m))*dexp(-(chilvl(i,j,m)*ev2erg)/(k_b*temp))
+    part = part + dble(g_i(i,j,m))*dexp(-(chilvl(i,j,m)*ev2erg)/(k_boltz*temp))
   END DO
   RETURN
 END FUNCTION part
