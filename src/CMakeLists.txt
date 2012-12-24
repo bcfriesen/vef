@@ -27,7 +27,7 @@ write_spectrum.f90
 write_vefs.f90
 )
 
-include(saha_boltzmann/CMakeLists.txt)
+include(saha-boltzmann/CMakeLists.txt)
 
 SET (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
