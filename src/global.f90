@@ -24,6 +24,9 @@ module global
   real(kind=dp), parameter :: me_therm_parm = 1.0d-8
   ! optical depth grid
   real(kind=dp), dimension( n_depth_pts ) :: tau_grid
+  ! finite-difference points on optical depth grid
+  real(kind=dp), dimension( 1 : n_depth_pts-1 ) :: dtau
+  real(kind=dp), dimension( 2 : n_depth_pts-1 ) :: dtau_tilde
   ! direction cosine grid
   real(kind=dp), dimension( n_mu_pts ) :: mu_grid
   ! wavelength grid (Angstrom)

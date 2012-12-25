@@ -39,6 +39,14 @@ program main
     tau_grid( i1 ) = tau_grid( i1 - 1 ) * tau_grid_ratio
   end do
 
+  ! Set up finite-difference-related grid values.
+  do i1 = 1, n_depth_pts - 1
+    dtau( i1 ) = calc_dtau( i1 )
+  end do
+  do i1 = 2, n_depth_pts - 1
+    dtau_tilde( i1 ) = calc_dtau_tilde( i1 )
+  end do
+
   ! Set up direction cosine grid. These should be evenly spaced.
   do i1 = 1, n_mu_pts
     mu_grid( i1 ) = real( i1 ) * ( 1.0d+0 / real( n_mu_pts ) )

@@ -1,7 +1,7 @@
 subroutine solve_rte
   use precision_mod
   use global
-  use interfaces, only: dtau, dtau_tilde, planck_fn, stop_exit
+  use interfaces, only: planck_fn, stop_exit
   use const, only: a2cm
   implicit none
 

@@ -1,10 +1,10 @@
 ! Calculates the difference in optical depth between points d+1 and d.
-function dtau( d )
+function calc_dtau( d )
   use precision_mod
   use global
   implicit none
 
-  real(kind=dp) :: dtau
+  real(kind=dp) :: calc_dtau
   integer :: d
 
   if ( d < 1 ) then
@@ -16,16 +16,15 @@ function dtau( d )
     write( *, * ) 'requested index for dtau: ', d
     stop
   else
-    dtau = tau_grid( d + 1 ) - tau_grid( d )
+    calc_dtau = tau_grid( d + 1 ) - tau_grid( d )
   end if
 
-end function dtau
+end function calc_dtau
 
 
 function dtau_mu( depth_idx, mu_idx )
   use precision_mod
   use global
-  use interfaces, only: dtau
   implicit none
 
   real(kind=dp) :: dtau_mu
@@ -38,13 +37,13 @@ end function dtau_mu
 
 
 ! Average change in optical depth between points d and d-1, and points d+1 and d.
-function dtau_tilde( d )
+function calc_dtau_tilde( d )
   use precision_mod
-  use interfaces, only: dtau
+  use interfaces, only: calc_dtau
   use global
   implicit none
 
-  real(kind=dp) :: dtau_tilde
+  real(kind=dp) :: calc_dtau_tilde
   integer :: d
 
   if ( d < 1 ) then
@@ -56,7 +55,7 @@ function dtau_tilde( d )
     write( *, * ) 'requested index for dtau: ', d
     stop
   else
-    dtau_tilde = ( dtau( d - 1 ) + dtau( d ) ) / 2.0d+0
+    calc_dtau_tilde = ( dtau( d - 1 ) + dtau( d ) ) / 2.0d+0
   end if
 
-end function dtau_tilde
+end function calc_dtau_tilde

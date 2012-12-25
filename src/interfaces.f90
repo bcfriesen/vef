@@ -2,20 +2,20 @@ module interfaces
   interface
 
 
-  function dtau( d )
+  function calc_dtau( d )
     use precision_mod
     implicit none
-    real(kind=dp) :: dtau
+    real(kind=dp) :: calc_dtau
     integer :: d
-  end function dtau
+  end function calc_dtau
 
 
-  function dtau_tilde( d )
+  function calc_dtau_tilde( d )
     use precision_mod
     implicit none
-    real(kind=dp) :: dtau_tilde
+    real(kind=dp) :: calc_dtau_tilde
     integer :: d
-  end function dtau_tilde
+  end function calc_dtau_tilde
 
 
   function dtau_mu( depth_idx, mu_idx )
