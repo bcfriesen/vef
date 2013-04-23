@@ -1,1 +1,3 @@
 - implement OpenMP parallelization
+
+- fix error in calculating H (first moment) at the surface
