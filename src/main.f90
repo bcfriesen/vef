@@ -145,6 +145,7 @@ program main
 
   ! use little_j to calculate flux
   call calc_flux
+  call write_moments
 
   call write_spectrum
 
