@@ -64,4 +64,6 @@ HJ_plot.set_ylabel(r'$H_\lambda / J_\lambda$')
 HJ_plot.tick_params(axis='both', which='major', labelsize=8)
 HJ_plot.tick_params(axis='both', which='minor', labelsize=6)
 
+fig.savefig('moments.pdf')
+
 plt.show()

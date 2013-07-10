@@ -87,7 +87,7 @@ program main
 
   write( *, * )
   write( *, * ) 'LTE COMPLETE!'
-  write( *, * ) 
+  write( *, * )
 
 !--------------------------------END LTE RUN------------------------------------
 
@@ -114,7 +114,7 @@ program main
   !call write_source_fn
 
   ! TODO: iterate this loop until VEFs converge
-  do i3 = 1, 20
+  do i3 = 1, 30
 
     write( *, '(a20, 2x, i3)') 'NLTE ITERATION #: ', i3
 
@@ -129,6 +129,7 @@ program main
     call solve_rte
 
     ! use little_j to calculate 2nd moment K
+    call calc_0th_moment_j
     call calc_2nd_moment_k
     !call write_moments
 
@@ -145,6 +146,8 @@ program main
 
   ! use little_j to calculate flux
   call calc_flux
+  call calc_0th_moment_j
+  call calc_2nd_moment_k
   call write_moments
 
   call write_spectrum

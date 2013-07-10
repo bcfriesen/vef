@@ -9,7 +9,7 @@ module global
   integer, parameter :: n_wl_pts = 100
 
   ! maximum optical depth to consider
-  real(kind=dp), parameter :: tau_max = 1.0d+4
+  real(kind=dp), parameter :: tau_max = 1.0d+10
   ! minimum non-zero optical depth to consider
   real(kind=dp), parameter :: tau_min = 1.0d-8
 
